@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="GB2312" standalone="no"?>
+<hisevent>
+	<csevent>
+		<cssubevent id="1" name="开关类" typename="KGEvent"></cssubevent>
+		<cssubevent id="2" name="刀闸类" typename="DZEvent"></cssubevent>
+		<cssubevent id="3" name="保护类" typename="BHEvent"></cssubevent>
+		<cssubevent id="4" name="遥测类" typename="YCEvent"></cssubevent>
+		<cssubevent id="5" name="周波类" typename="ZBEvent"></cssubevent>
+		<cssubevent id="6" name="通道类" typename="TDEvent"></cssubevent>
+		<cssubevent id="7" name="虚拟状态类" typename="XNStateEvent"></cssubevent>
+		<cssubevent id="8" name="变压器类" typename="BYQEvent"></cssubevent>
+		<cssubevent id="9" name="微机保护类" typename="WJBHEvent"></cssubevent>
+		<cssubevent id="10" name="遥测超计划值事项" typename="JHOLEvent"></cssubevent>
+		<cssubevent id="11" name="遥传自动替代置入" typename="RRDEvent"></cssubevent>
+		<cssubevent id="12" name="AGC状态类" typename="STATEEVT"></cssubevent>
+		<cssubevent id="13" name="发电机控制类" typename="FDJControlEVT"></cssubevent>
+		<cssubevent id="14" name="GPS信息类" typename="GPSEvent"></cssubevent>
+		<cssubevent id="15" name="风机变位事项" typename="FJChgStateEvent"></cssubevent>
+		<cssubevent id="16" name="SVG事项" typename="SVGEvent"></cssubevent>
+		<cssubevent id="17" name="风机报警事项" typename="FJAlarmEvent"></cssubevent>
+		<cssubevent id="18" name="母线事项" typename="MXEvent"></cssubevent>
+		<cssubevent id="19" name="链路事项" typename="LianLuEvent"></cssubevent>
+	</csevent>
+
+	<czevent>
+		<czsubevent id="20" name="遥控操作类" typename="YK"></czsubevent>
+		<czsubevent id="21" name="遥调操作类" typename="YT"></czsubevent>
+		<czsubevent id="22" name="升降操作类" typename="SHJ"></czsubevent>
+		<czsubevent id="23" name="设置数据类" typename="SETDATA"></czsubevent>
+		<czsubevent id="24" name="旁母替代操作" typename="PMCZ"></czsubevent>
+		<czsubevent id="25" name="遥测数据替代操作" typename="YCREP"></czsubevent>
+		<czsubevent id="26" name="通道操作类" typename="TDCZ"></czsubevent>
+		<czsubevent id="27" name="修改描述库类" typename="MSHJ"></czsubevent>
+		<czsubevent id="28" name="修改保护信息类" typename="MBH"></czsubevent>
+		<czsubevent id="29" name="交接班记录" typename="JJB"></czsubevent>
+		<czsubevent id="30" name="报警确认操作" typename="ALARMOKCZ"></czsubevent>
+		<czsubevent id="31" name="设置挂牌操作" typename="BRANDCZ"></czsubevent>
+		<czsubevent id="32" name="设置远动操作" typename="YDCZ"></czsubevent>
+		<czsubevent id="33" name="人员登录" typename="LOGIN"></czsubevent>
+		<czsubevent id="34" name="人员注销" typename="LOGOUT"></czsubevent>
+		<czsubevent id="35" name="风机遥控" typename="FJYKEvt"></czsubevent>
+	</czevent>
+
+	<xtevent>
+		<xtsubevent id="1" name="开机类" typename="sbxtKJEvent"></xtsubevent>
+		<xtsubevent id="2" name="关机类" typename="sbxtGJEvent"></xtsubevent>
+		<xtsubevent id="3" name="机器脱网类" typename="sbxtTWEvent"></xtsubevent>
+		<xtsubevent id="4" name="模块加载类" typename="sbxtMJEvent"></xtsubevent>
+		<xtsubevent id="5" name="模块下载类" typename="sbxtMXEvent"></xtsubevent>
+		<xtsubevent id="6" name="模块切换类" typename="sbxtMQEvent"></xtsubevent>
+		<xtsubevent id="7" name="模块删除类" typename="sbxtMDEvent"></xtsubevent>
+		<xtsubevent id="8" name="网络错误类" typename="sbxtNEEvent"></xtsubevent>
+		<xtsubevent id="9" name="模块终止类" typename="sbxtMTEvent"></xtsubevent>
+		<xtsubevent id="10" name="节点发出模块切换命令" typename="sbxtStartMQ"></xtsubevent>
+		<xtsubevent id="11" name="主机发出模块切换命令" typename="sbxtExecMQ"></xtsubevent>
+		<xtsubevent id="12" name="网络切换类" typename="sbxtNSEvent"></xtsubevent>
+		<xtsubevent id="13" name="存储容量类" typename="sbxtDiskEvent"></xtsubevent>
+		<xtsubevent id="14" name="主辅管理机切换" typename="sbxtJQEvent"></xtsubevent>
+	</xtevent>
+</hisevent>

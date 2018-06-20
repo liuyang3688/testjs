@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="GBK"?>
+<params>
+	<statuscolor>
+		<daifeng>#F4B50A</daifeng>
+		<fadian>#55B416</fadian>
+		<tingji>#D72424</tingji>
+		<weihu>#0DC4AC</weihu>
+		<shoulei>#0D27EC</shoulei>
+		<qita>#D829D2</qita>
+	</statuscolor>
+</params>

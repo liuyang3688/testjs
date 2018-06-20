@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="GBK"?>
+<params>
+	<!-- 公司类型标志，1：风电，2：光伏，3：综合 -->
+	<company>
+		<type>3</type>
+	</company>
+	<!-- 并发测试标志，1：并发测试状态 ，0：非测试，线程应用时一定设置为0-->
+	<system>
+		<!--基线：jixian；非基线：feijixian;广东：guangdong;泰安：taian  jixian2015 -->
+		<!-- 福建配网使用的是基线版本 -->
+		<version>feijixian</version>
+		<!-- 是否有抖动事项表 0没有  1 有 -->
+		   <!-- 参数操作事项结构体长度 -->
+		   <feijixian>
+		   		<csczevent>1300</csczevent>
+		   		<xtevent>66</xtevent>
+		   </feijixian>
+	</system>
+   	<hisevent>
+	    <alarmMode>0</alarmMode>
+	</hisevent>
+    <webdatas>
+     	<!--webdatas服务所运行的ip地址，主要是负责SVG实时数据刷新-->
+    	<ip>192.168.0.2</ip>
+    	
+    	<!--webdatas服务所运行的端口号，一般不用修改，默认值为1289-->
+    	<port>1289</port>
+    </webdatas>
+    
+    <!-- webproxy 运行机器ip，端口号，此模式主要提供责任区socket通信接口，实时事项获取接口
+                       若启用其中任何一个功能，则需要配置webproxy运行机器的ip地址，端口号默认为15001，不用修改 -->
+    <webproxy>
+    	<!--webproxy运行机器ip-->
+     	<ip>192.168.0.2</ip>
+     	<!--webproxy端口号,一般不用修改，默认值为15001-->
+    	<port>15001</port>
+	    <rtevent>
+	    	<!-- 实时事项是否启用，1为启用，0为不启用-->
+	   		<enable>1</enable>
+	   		<!-- 后台缓存事项最大个数 -->
+	    	<cacheNum>2000</cacheNum>
+	    	<!-- 前台显示事项最大个数 -->
+	    	<flexNum>200</flexNum>
+	    </rtevent>
+    </webproxy>
+    <!-- 实时数据服务webService地址 -->
+    <rtdatawebservice1>
+    	<url>http://127.0.0.1:8887</url>
+    </rtdatawebservice1>
+    
+     <rtdatawebservice2>
+    	<url>http://192.168.0.2:8887</url>
+    </rtdatawebservice2>
+    
+    <topowebservice>
+    	<url>http://192.168.0.2:8888</url>
+    </topowebservice>
+    
+    <!-- 故障录波文件存放路径 -->
+    <guzhanglubofilepath>
+    	<address>D:\\iesbase\\fault_recorder\\</address>
+    </guzhanglubofilepath>
+</params>
