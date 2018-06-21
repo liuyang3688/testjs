@@ -10,8 +10,6 @@ import javax.xml.xpath.XPathFactory;
 
 import org.w3c.dom.Document;
 
-import com.ieslab.util.logger.IesLogger;
-
 public class ErJiStateConfig {
 	private static ErJiStateConfig instance = null;
 	/*private String fadian = "#48993d"; 
@@ -41,7 +39,7 @@ public class ErJiStateConfig {
 	private ErJiStateConfig() {
 		
 		String configPath = GlobalPathUtil.path+ "/config/erjistatusconfig.xml";
-		IesLogger.instance().runInfo("读取配置文件开始，路径为："+ configPath);
+		Logger.instance().runInfo("读取配置文件开始，路径为："+ configPath);
 		try {
 			DocumentBuilder builder = DocumentBuilderFactory.newInstance()
 					.newDocumentBuilder();
@@ -74,15 +72,15 @@ public class ErJiStateConfig {
 			IesLogger.instance().runInfo("二级状态未知颜色为："+ weizhi);
 			IesLogger.instance().runInfo("二级状态离线颜色为："+ lixian);*/
 			
-			IesLogger.instance().runInfo("二级状态待风颜色为："+ daifeng);
-			IesLogger.instance().runInfo("二级状态发电颜色为："+ fadian);
-			IesLogger.instance().runInfo("二级状态停机颜色为："+ tingji);
-			IesLogger.instance().runInfo("二级状态维护颜色为："+ weihu);
-			IesLogger.instance().runInfo("二级状态受累颜色为："+ shoulei);
-			IesLogger.instance().runInfo("二级状态其他颜色为："+ qita);
+			Logger.instance().runInfo("二级状态待风颜色为："+ daifeng);
+			Logger.instance().runInfo("二级状态发电颜色为："+ fadian);
+			Logger.instance().runInfo("二级状态停机颜色为："+ tingji);
+			Logger.instance().runInfo("二级状态维护颜色为："+ weihu);
+			Logger.instance().runInfo("二级状态受累颜色为："+ shoulei);
+			Logger.instance().runInfo("二级状态其他颜色为："+ qita);
 
 		} catch (Exception err) {
-			IesLogger.instance().runInfo("读取配置文件【" + configPath + "】异常：" + err);
+			Logger.instance().runInfo("读取配置文件【" + configPath + "】异常：" + err);
 		}
 	}
 	public String getDaifeng() {

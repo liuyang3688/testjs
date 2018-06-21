@@ -13,12 +13,14 @@ package com.ieslab.util;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+
 import java.io.File;
+
 
 
 import org.w3c.dom.*;
 
-import com.ieslab.util.logger.IesLogger;
+
 
 
 import javax.xml.xpath.*;
@@ -65,7 +67,7 @@ public class QueryConfig {
 		
 		String configPath = GlobalPathUtil.path
 				+ "/config/queryParam.xml";
-		IesLogger.instance().runInfo("读取配置文件开始，路径为："+ configPath);
+		Logger.instance().runInfo("读取配置文件开始，路径为："+ configPath);
 		try {
 			DocumentBuilder builder = DocumentBuilderFactory.newInstance()
 					.newDocumentBuilder();
@@ -76,20 +78,20 @@ public class QueryConfig {
 					XPathConstants.STRING);
 			version = (String) xpath.evaluate("/params/system/version", configDoc,
 					XPathConstants.STRING);
-	    	IesLogger.instance().runInfo("程序版本为："+ version);
+	    	Logger.instance().runInfo("程序版本为："+ version);
 		    try{	
 		    	csczEventSize = Integer.valueOf((String)(xpath.evaluate("/params/system/"+version+"/csczevent", configDoc,
 						XPathConstants.STRING)));
 		    	xtEventSize = Integer.valueOf((String)(xpath.evaluate("/params/system/"+version+"/xtevent", configDoc,
 						XPathConstants.STRING)));
-		    	IesLogger.instance().runInfo("csczevent："+ csczEventSize);
-		    	IesLogger.instance().runInfo("xtevent："+ xtEventSize);
+		    	Logger.instance().runInfo("csczevent："+ csczEventSize);
+		    	Logger.instance().runInfo("xtevent："+ xtEventSize);
 			} catch (Exception err) {
-				IesLogger.instance().runInfo("/params/system/"+version+"/csczevent 不存在");
-				IesLogger.instance().runInfo("/params/system/"+version+"/xtevent 不存在");
-				IesLogger.instance().runInfo("/params/system/user/pasinvalidtime 不存在");
-				IesLogger.instance().runInfo("csczevent默认值："+ csczEventSize);
-		    	IesLogger.instance().runInfo("xtevent默认值："+ xtEventSize);
+				Logger.instance().runInfo("/params/system/"+version+"/csczevent 不存在");
+				Logger.instance().runInfo("/params/system/"+version+"/xtevent 不存在");
+				Logger.instance().runInfo("/params/system/user/pasinvalidtime 不存在");
+				Logger.instance().runInfo("csczevent默认值："+ csczEventSize);
+		    	Logger.instance().runInfo("xtevent默认值："+ xtEventSize);
 			}
 			
 			
@@ -97,15 +99,15 @@ public class QueryConfig {
 					XPathConstants.STRING);
 			realPort = (String) xpath.evaluate("/params/webdatas/port",
 					configDoc, XPathConstants.STRING);
-			IesLogger.instance().runInfo("webdatas运行机器配置ip为："+ realIp);
-	    	IesLogger.instance().runInfo("webdatas运行机器配置端口为："+ realPort);
+			Logger.instance().runInfo("webdatas运行机器配置ip为："+ realIp);
+	    	Logger.instance().runInfo("webdatas运行机器配置端口为："+ realPort);
 
 			webproxyIp = (String) xpath.evaluate("/params/webproxy/ip",
 					configDoc, XPathConstants.STRING);
 			webproxyPort = (String) xpath.evaluate("/params/webproxy/port",
 					configDoc, XPathConstants.STRING);
-			IesLogger.instance().runInfo("webproxy运行机器配置ip为："+ webproxyIp);
-	    	IesLogger.instance().runInfo("webproxy运行机器配置端口为："+ webproxyPort);
+			Logger.instance().runInfo("webproxy运行机器配置ip为："+ webproxyIp);
+	    	Logger.instance().runInfo("webproxy运行机器配置端口为："+ webproxyPort);
 
 			rtEventFlag = (String) xpath.evaluate(
 					"/params/webproxy/rtevent/enable", configDoc,
@@ -116,9 +118,9 @@ public class QueryConfig {
 			flexNum = (String) xpath.evaluate(
 					"/params/webproxy/rtevent/flexNum", configDoc,
 					XPathConstants.STRING);
-			IesLogger.instance().runInfo("实时事项使用标志为："+ rtEventFlag);
-			IesLogger.instance().runInfo("实时事项后台缓存数据条数为："+ rtEventFlag);
-			IesLogger.instance().runInfo("实时事项前台缓存数据条数为："+ rtEventFlag);
+			Logger.instance().runInfo("实时事项使用标志为："+ rtEventFlag);
+			Logger.instance().runInfo("实时事项后台缓存数据条数为："+ rtEventFlag);
+			Logger.instance().runInfo("实时事项前台缓存数据条数为："+ rtEventFlag);
 			
 			hiseventAlarm = (String) xpath.evaluate("/params/hisevent/alarmMode", configDoc,
 					XPathConstants.STRING);
@@ -140,10 +142,10 @@ public class QueryConfig {
 					XPathConstants.STRING);
 			
 			
-			IesLogger.instance().runInfo("实时数据服务webService地址:"+ rtdatawebservice1);
-			IesLogger.instance().runInfo("拓扑服务webService地址:"+ topowebservice);
+			Logger.instance().runInfo("实时数据服务webService地址:"+ rtdatawebservice1);
+			Logger.instance().runInfo("拓扑服务webService地址:"+ topowebservice);
 		} catch (Exception err) {
-			IesLogger.instance().runInfo("读取配置文件【" + configPath + "】异常：" + err);
+			Logger.instance().runInfo("读取配置文件【" + configPath + "】异常：" + err);
 		}
 	}
 
