@@ -1,4 +1,4 @@
-package com.ieslab.util;
+package com.leotech.util;
 
 import org.apache.log4j.Logger;
 

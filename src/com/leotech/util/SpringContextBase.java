@@ -1,4 +1,4 @@
-package com.ieslab.util;
+package com.leotech.util;
 
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;

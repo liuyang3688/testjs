@@ -1,4 +1,4 @@
-package com.ieslab.util;
+package com.leotech.util;
 
 import java.sql.Timestamp;
 import java.text.ParseException;

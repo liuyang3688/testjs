@@ -9,7 +9,7 @@
  *
  *********************************************************************/
 
-package com.ieslab.util;
+package com.leotech.util;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
