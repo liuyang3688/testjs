@@ -29,8 +29,7 @@ public class AccessControlFilter implements Filter {
   public void init(FilterConfig filterConfig){
   }
 
-	public void doFilter(ServletRequest request, ServletResponse response,
-			FilterChain chain) throws IOException, ServletException {
+	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
 		String context = ((HttpServletRequest) request).getContextPath();
 		String url = ((HttpServletRequest) request).getRequestURI().substring(context.length());
 
