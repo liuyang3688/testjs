@@ -4,16 +4,12 @@ import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 
 public class GlobalListener implements ServletContextListener{
-
-
 	public void contextDestroyed(ServletContextEvent sce) {
 		
 	}
-
 	public void contextInitialized(ServletContextEvent sce) {
 		// 启动线程
 	}
-
 	public String proceeWebName(String webRoot) {
 		String webName = "";
 		if (null != webRoot && !"".equals(webRoot)) {
@@ -24,5 +20,4 @@ public class GlobalListener implements ServletContextListener{
 		}
 		return webName;
 	}
-
 }
