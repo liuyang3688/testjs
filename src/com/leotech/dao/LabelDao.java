@@ -76,7 +76,8 @@ public class LabelDao {
 		fetchAllText();
 		List<JSONObject> list = new ArrayList<JSONObject>();
 		try {
-			String sqlFilter = " where isDirty=1 and isShow=1";
+			//String sqlFilter = " where isDirty=1 and isShow=1";
+			String sqlFilter = " where isShow=1";
 			String strSql = "select *  from label";
 			strSql += sqlFilter;
 			list = jdbcTemplate.query(strSql, new RowMapper<JSONObject>() {

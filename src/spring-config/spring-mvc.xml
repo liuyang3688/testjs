@@ -22,6 +22,7 @@
             expression="org.springframework.web.bind.annotation.ControllerAdvice"/>
 	</context:component-scan>
 	
+	<!-- 由于没有指定bean id,所以这个bean回根据全限定类名类命名 -->
 	<bean class="org.springframework.web.servlet.mvc.annotation.AnnotationMethodHandlerAdapter" />
 	<bean class="org.springframework.web.servlet.mvc.annotation.DefaultAnnotationHandlerMapping" />
 	

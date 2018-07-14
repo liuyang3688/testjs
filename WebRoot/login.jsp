@@ -13,7 +13,7 @@
 
 <title>大唐新能源甘肃公司生产调度平台</title>
 <meta name="author" content="DeathGhost">
-<link rel="stylesheet" type="text/css" href="<%=path%>/static/plugins/login/style.css" tppabs="<%=path%>/static/plugins/login/style.css">
+<link rel="stylesheet" type="text/css" href="<%=path%>/static/plugins/login/style.css">
 <style>
 body {
 	height: 100%;
@@ -34,8 +34,8 @@ canvas {
  <link href="<%=path %>/static/plugins/layui/css/layui.css" rel="stylesheet">
  <script type="text/javascript" src="<%=path %>/static/plugins/layui/layui.js"></script>
 <script src="<%=path%>/static/plugins/login/jquery.js"></script>
-<script src="<%=path%>/static/plugins/login/verificationNumbers.js" tppabs="<%=path%>/static/plugins/login/verificationNumbers.js"></script>
-<script src="<%=path%>/static/plugins/login/Particleground.js" tppabs="<%=path%>/static/plugins/login/Particleground.js"></script>
+<script src="<%=path%>/static/plugins/login/verificationNumbers.js"></script>
+<script src="<%=path%>/static/plugins/login/Particleground.js"></script>
 <script>
 	$(document).ready(function() {
 		

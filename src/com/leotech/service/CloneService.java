@@ -3,11 +3,16 @@ package com.leotech.service;
 import java.util.List;
 
 import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.JSONArray;
 import com.leotech.dao.CloneDao;
+import com.leotech.dao.DeviceDao;
 
 public class CloneService {
 	public static List<JSONObject> getAllClone() {
 		return CloneDao.instance().getAllClone();
+	}
+	public static JSONArray getAllDevice() {
+		return DeviceDao.instance().getAllDevice();
 	}
 	public static Boolean updateIsDirty(int uuid){
 		Boolean isDirty = false;

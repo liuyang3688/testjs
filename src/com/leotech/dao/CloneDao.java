@@ -30,7 +30,8 @@ public class CloneDao {
 	{
 		List<JSONObject> list = new ArrayList<JSONObject>();
 		try {
-			String sqlFilter = " where isDirty=1 and isShow=1";
+			//String sqlFilter = " where isDirty=1 and isShow=1";
+			String sqlFilter = " where isShow=1";
 			String strSql = "select *  from clone";
 			strSql += sqlFilter;
 			list = jdbcTemplate.query(strSql, new RowMapper<JSONObject>() {
@@ -56,7 +57,6 @@ public class CloneDao {
 			});
 		} catch (Exception e) {
 			e.printStackTrace();
-			System.out.println(e.getMessage());
 		}
 		return list;
 	}

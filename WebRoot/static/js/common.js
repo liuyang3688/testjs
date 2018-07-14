@@ -23,6 +23,4 @@ function exist(obj) {
 
 function debug(name, value)
 {
-	if(name == value)
-		debugger;
 }

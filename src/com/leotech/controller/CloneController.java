@@ -28,16 +28,35 @@ public class CloneController {
 			e.printStackTrace();
 		}
 	}
+	@RequestMapping("get_all_device")
+	public void getAllDevice(HttpServletRequest request, HttpServletResponse response)
+	{
+		JSONArray devices = new JSONArray();
+		devices = CloneService.getAllDevice();
+		try {
+			response.getWriter().print(devices);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
 	@RequestMapping("update_isdirty")
 	public void updateIsDirty(HttpServletRequest request, HttpServletResponse response)
 	{
 		JSONObject ret = new JSONObject();
 		String strUuid = request.getParameter("uuid");
-		int uuid = Integer.parseInt(strUuid);
-		if(CloneService.updateIsDirty(uuid)){
-			ret.put("retcode", 1);
+		if(strUuid==null || strUuid.isEmpty()) {
+			if(CloneService.updateIsDirty_All()){
+				ret.put("retcode", 1);
+			} else {
+				ret.put("retcode", 0);
+			}
 		} else {
-			ret.put("retcode", 0);
+			int uuid = Integer.parseInt(strUuid);
+			if(CloneService.updateIsDirty(uuid)){
+				ret.put("retcode", 1);
+			} else {
+				ret.put("retcode", 0);
+			}
 		}
 		
 		try {

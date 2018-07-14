@@ -19991,12 +19991,12 @@
 
 				if ( _canvas === undefined ) _canvas = document.createElementNS( 'http://www.w3.org/1999/xhtml', 'canvas' );
 
-				let floorWidth = _Math.floorPowerOfTwo( image.width );
-				let ceilWidth = _Math.ceilPowerOfTwo( image.width );
-				let floorHeight = _Math.floorPowerOfTwo( image.height );
-				let ceilHeight = _Math.ceilPowerOfTwo( image.height );
-                let MidWidth = ( floorWidth + ceilWidth )/2;
-				let MidHeight = ( floorHeight + ceilHeight )/2;
+				var floorWidth = _Math.floorPowerOfTwo( image.width );
+				var ceilWidth = _Math.ceilPowerOfTwo( image.width );
+				var floorHeight = _Math.floorPowerOfTwo( image.height );
+				var ceilHeight = _Math.ceilPowerOfTwo( image.height );
+				var MidWidth = ( floorWidth + ceilWidth )/2;
+				var MidHeight = ( floorHeight + ceilHeight )/2;
 				//_canvas.width = _Math.floorPowerOfTwo( image.width );
 				//_canvas.height = _Math.floorPowerOfTwo( image.height );
                 _canvas.width = (image.width < MidWidth) ? floorWidth : ceilWidth;
@@ -20004,7 +20004,7 @@
                 var context = _canvas.getContext( '2d' );
 				context.drawImage( image, 0, 0, _canvas.width, _canvas.height );
 
-				console.warn( 'THREE.WebGLRenderer: image is not power of two (' + image.width + 'x' + image.height + '). Resized to ' + _canvas.width + 'x' + _canvas.height, image );
+				//console.warn( 'THREE.WebGLRenderer: image is not power of two (' + image.width + 'x' + image.height + '). Resized to ' + _canvas.width + 'x' + _canvas.height, image );
 
 				return _canvas;
 

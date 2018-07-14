@@ -28,9 +28,9 @@ public class IndexController {
 	@RequestMapping("index")
 	public String index(HttpServletRequest request, HttpServletResponse response)
 	{
-		MeshService.updateIsDirty_All(true);
-		CloneService.updateIsDirty_All(true);
-		LabelService.updateIsDirty_All(true);
+//		MeshService.updateIsDirty_All(true);
+//		CloneService.updateIsDirty_All(true);
+//		LabelService.updateIsDirty_All(true);
 		return "index";
 	}
 }

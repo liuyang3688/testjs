@@ -127,6 +127,7 @@
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
+  <component name="ChangesViewManager" show_ignored="true" />
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
       <file leaf-file-name="d3d.js" pinned="false" current-in-tab="true">
@@ -355,15 +356,15 @@
       <window_info anchor="bottom" id="Messages" order="7" weight="0.47959185" />
       <window_info anchor="right" id="Palette&#9;" order="3" />
       <window_info anchor="bottom" id="Java Enterprise" order="7" />
-      <window_info anchor="bottom" id="Event Log" order="7" sideWeight="0.30711043" side_tool="true" weight="0.2585034" />
+      <window_info anchor="bottom" id="Event Log" order="7" sideWeight="0.16910689" side_tool="true" visible="true" weight="0.5581015" />
       <window_info anchor="right" id="Maven Projects" order="3" />
       <window_info anchor="bottom" id="Database Changes" order="7" show_stripe_button="false" />
-      <window_info active="true" anchor="bottom" id="Version Control" order="7" sideWeight="0.6928896" visible="true" weight="0.37755102" />
+      <window_info active="true" anchor="bottom" id="Version Control" order="7" sideWeight="0.8308931" visible="true" weight="0.5581015" />
       <window_info anchor="bottom" id="Run" order="2" sideWeight="0.40998486" weight="0.5544218" />
       <window_info anchor="bottom" id="Spring" order="8" />
       <window_info anchor="bottom" id="Terminal" order="7" />
       <window_info id="Designer" order="1" />
-      <window_info content_ui="combo" id="Project" order="0" sideWeight="0.41148326" visible="true" weight="0.22617246" />
+      <window_info content_ui="combo" id="Project" order="0" sideWeight="0.41148326" visible="true" weight="0.21888727" />
       <window_info id="Web" order="2" side_tool="true" />
       <window_info anchor="right" id="Database" order="3" />
       <window_info id="Structure" order="4" sideWeight="0.5885168" weight="0.22617246" />
@@ -391,10 +392,37 @@
       </list>
     </option>
   </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State>
+              <option name="RECENTLY_FILTERED_USER_GROUPS">
+                <collection />
+              </option>
+              <option name="RECENTLY_FILTERED_BRANCH_GROUPS">
+                <collection />
+              </option>
+              <option name="COLUMN_ORDER">
+                <list>
+                  <option value="0" />
+                  <option value="1" />
+                  <option value="2" />
+                  <option value="3" />
+                </list>
+              </option>
+            </State>
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
   <component name="VcsContentAnnotationSettings">
     <option name="myLimit" value="2678400000" />
   </component>
   <component name="VcsManagerConfiguration">
+    <option name="CHECK_CODE_SMELLS_BEFORE_PROJECT_COMMIT" value="false" />
     <MESSAGE value="idea modify" />
     <option name="LAST_COMMIT_MESSAGE" value="idea modify" />
   </component>

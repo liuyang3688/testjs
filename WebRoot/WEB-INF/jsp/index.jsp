@@ -7,7 +7,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
         "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <title>GLSERVER测试</title>
 
     <style type="text/css">
@@ -24,57 +24,6 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 
         body {
             font: 14px/180% Arial, Helvetica, sans-serif, "新宋体";
-        }
-
-        #options {
-            z-index: 7000;
-            position: absolute;
-            padding-bottom: 10px;
-            padding-left: 10px;
-            width: 120px;
-            padding-right: 10px;
-            background: #e7e7e7;
-            color: #999;
-            top: 0px;
-            right: 0px;
-            padding-top: 10px
-        }
-
-        #options p {
-            height: 24px;
-            line-height: 24px;
-        }
-
-        #options a {
-            color: #999;
-            text-decoration: none
-        }
-
-        #options a:hover {
-            background: #666666;
-            color: #fff
-        }
-
-        #settings {
-            z-index: 8000;
-            position: absolute;
-            text-indent: -99999px;
-            width: 43px;
-            display: block;
-            background: url(/glserver/static/pic/setting.gif) no-repeat 0px 0px;
-            height: 43px;
-            overflow: hidden;
-            top: 0px;
-            cursor: pointer;
-            right: 0px
-        }
-
-        #settings:hover {
-            background: url(/glserver/static/pic/setting.gif) no-repeat 0px -86px
-        }
-
-        .cerrar {
-            background: url(/glserver/static/pic/setting.gif) no-repeat 0px -43px !important;
         }
     </style>
 
@@ -94,14 +43,8 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
     <script type="text/javascript">
         // 操作菜单
     	$(document).ready(function () {
-            $('#options').hide();
-            $('#settings').click(function () {
-                $('#options').slideToggle();
-                $(this).toggleClass("cerrar");
-            });
-            
 	         // 初始化
-	         let ins = new d3d("#canvas-frame", 0xCCC);
+	         let ins = new D3DLib("#canvas-frame", 0xCCC);
 	         ins.start();
            
         });
@@ -111,11 +54,5 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 </head>
 <body>
 <div id="canvas-frame"></div>
-<div id="settings">设置</div>
-<div id="options" style="display: none;">
-    <p><a href="javascript:void(0)">Cube</a></p>
-    <p><a href="javascript:void(0)">Sphere</a></p>
-    <p><a href="javascript:void(0)">Label</a></p>
-</div>
 </body>
 </html>

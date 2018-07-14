@@ -10,10 +10,21 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
 import com.leotech.service.MeshService;
 @Controller
 @RequestMapping("mesh")
 public class MeshController {
+	@RequestMapping("get_all_tpl")
+	public void getAllTpl(HttpServletRequest request, HttpServletResponse response)
+	{
+		JSONArray tpls = MeshService.getAllTpl();
+		try {
+			response.getWriter().print(tpls);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
 	@RequestMapping("get_all_mesh")
 	public void getAllMesh(HttpServletRequest request, HttpServletResponse response)
 	{
@@ -33,11 +44,19 @@ public class MeshController {
 	{
 		JSONObject ret = new JSONObject();
 		String strUuid = request.getParameter("uuid");
-		int uuid = Integer.parseInt(strUuid);
-		if(MeshService.updateIsDirty(uuid)){
-			ret.put("retcode", 1);
+		if( strUuid==null || strUuid.isEmpty()) {
+			if(MeshService.updateIsDirty_All()){
+				ret.put("retcode", 1);
+			} else {
+				ret.put("retcode", 0);
+			}
 		} else {
-			ret.put("retcode", 0);
+			int uuid = Integer.parseInt(strUuid);
+			if(MeshService.updateIsDirty(uuid)){
+				ret.put("retcode", 1);
+			} else {
+				ret.put("retcode", 0);
+			}
 		}
 		
 		try {

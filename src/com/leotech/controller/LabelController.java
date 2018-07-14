@@ -36,12 +36,21 @@ public class LabelController {
 	{
 		JSONObject ret = new JSONObject();
 		String strUuid = request.getParameter("uuid");
-		int uuid = Integer.parseInt(strUuid);
-		if(LabelService.updateIsDirty(uuid)){
-			ret.put("retcode", 1);
+		if(strUuid==null || strUuid.isEmpty()) {
+			if(LabelService.updateIsDirty_All()){
+				ret.put("retcode", 1);
+			} else {
+				ret.put("retcode", 0);
+			}
 		} else {
-			ret.put("retcode", 0);
+			int uuid = Integer.parseInt(strUuid);
+			if(LabelService.updateIsDirty(uuid)){
+				ret.put("retcode", 1);
+			} else {
+				ret.put("retcode", 0);
+			}
 		}
+		
 		
 		try {
 			response.getWriter().print(ret);

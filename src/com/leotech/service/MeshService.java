@@ -1,11 +1,14 @@
 package com.leotech.service;
 
 import java.util.List;
-
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.leotech.dao.MeshDao;
 
 public class MeshService {
+	public static JSONArray getAllTpl() {
+		return MeshDao.instance().getAllTpl();
+	}
 	public static List<JSONObject> getAllMesh() {
 		return MeshDao.instance().getAllMesh();
 	}
