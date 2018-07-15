@@ -255,7 +255,7 @@ D3DLib.prototype.onDocumentMouseMove = function(event){
 D3DLib.prototype.initMouseCtrl = function () {
     this.controls = new THREE.OrbitControls(this.camera);
     this.controls.maxPolarAngle = Math.PI * 0.48;
-    this.controls.minDistance=500;
+    this.controls.minDistance=200;
     this.controls.maxDistance = 3000;
     this.controls.zoomSpeed = 2;
     this.controls.addEventListener('change', this.updateControls);
@@ -318,8 +318,9 @@ D3DLib.prototype.connection = function(){
             name: pathName,
             type: 'beeline',
             visible: true,
-            imgurl: GCONFIG['pic_path'] + 'UV_Grid_Sm.jpg',
-            radiu: 0.5,
+            //imgurl: GCONFIG['pic_path'] + 'UV_Grid_Sm.jpg',
+            color: 'green',
+            radiu: 0.8,
             scene: true
         };
         let pathPoints = [
@@ -498,6 +499,7 @@ D3DLib.prototype.connection = function(){
         D3DOBJ.makeDynamicTextSprite('equipment_card_52', spriteConn1Config);
         D3DOBJ.makeDynamicTextSprite('equipment_card_23', spriteConn2Config);
     } else {
+        D3DOBJ.delObject(pathName);
         D3DOBJ.delObject(spriteConn1Name);
         D3DOBJ.delObject(spriteConn2Name);
     };
@@ -994,21 +996,25 @@ D3DLib.prototype.drawLabel = function(data){
 	drawingCanvas.width = data['width'] || 50;
     drawingCanvas.height = data['height'] || 50;
 
+    if (data.hasOwnProperty("fillColor") && data['fillColor'] !== ''){
+        drawingContext.fillStyle = data['fillColor'];
+    }
     if(exist(data['pic']) && data['pic'] !== ''){
     	drawingContext.drawImage(data['imgobj'], 0, 0, drawingCanvas.width, drawingCanvas.height);
-    	drawingContext.fillStyle = 'rgba(33,136,104,1)';
     } else {
-        drawingContext.fillStyle = "rgba(43,76,143,1)";
         drawingContext.fillRect(0, 0, drawingCanvas.width, drawingCanvas.height);
-        drawingContext.fillStyle = 'rgba(255,255,255,1)';
     }
     drawingContext.textAlign = 'center';
     drawingContext.textBaseline = 'middle';
+    //drawingContext.fillStyle = '#FFFFFF';
     if(exist(data['texts'])){
     	for (let i = 0; i < data['texts'].length; i++) {
-            drawingContext.font = data['texts'][i].font;
-            //let textMeasure = drawingContext.measureText(data['texts'][i].text);
-            drawingContext.fillText(data['texts'][i].text, data['texts'][i]['offX'], data['texts'][i]['offY']);
+    	    let text = data['texts'][i];
+            drawingContext.font = text.font;
+    	    if (text.hasOwnProperty('color') && text['color'] !== '') {
+                drawingContext.fillStyle = text['color'];
+            }
+            drawingContext.fillText(text.text, text['offX'], text['offY']);
         }
     }
     
@@ -1216,6 +1222,8 @@ D3DLib.prototype.createPlane = function(meshData, side_config){
     mesh['position'].set(meshData['x'],meshData['y'],meshData['z']);
     return mesh;
 };
+// mode: 0 表示与场景中对象进行BSP操作
+// mode: 1 表示与模板中对象进行BSP操作
 D3DLib.prototype.createHole = function(meshData, mode){
 	if(mode === undefined || mode === ''){
 		mode = '0';
@@ -1241,10 +1249,91 @@ D3DLib.prototype.createHole = function(meshData, mode){
 		}
 	}
 };
+// D3DLib.prototype.mergeModel = function(op, fromObj, toObj){
+//     let fromBsp = new ThreeBSP(fromObj);
+//     let toBsp = new ThreeBSP(toObj);
+//     let resBsp = null;
+//     switch (op) {
+//         case '-':
+//             resBsp = fromBsp.subtract(toBsp);
+//             break;
+//         case '+':
+//             resBsp = fromBsp.union(toBsp);
+//             break;
+//         case '&':
+//             resBsp = fromBsp.intersect(toBsp);
+//             break;
+//         default:
+//             console.log('unsupported opcode ' + opcode);
+//     }
+//     let resMesh = resBsp.toMesh(fromBsp.material);
+//     resMesh['material']['shading'] = THREE['FlatShading'];
+//     resMesh['geometry']['computeFaceNormals']();
+//     resMesh['geometry']['computeVertexNormals']();
+//     resMesh['uuid'] = fromObj['uuid'];
+//     resMesh['name'] = fromObj['name'];
+//     resMesh['material']['needsUpdate'] = true;
+//     resMesh['geometry']['buffersNeedUpdate'] = true;
+//     resMesh['geometry']['uvsNeedUpdate'] = true;
+//     let fromCopyObj = null;
+//     for (let i = 0; i < resMesh['geometry']['faces']['length']; i++) {
+//         let isCopyFaces = false;
+//         for (let faceI = 0; faceI < fromObj['geometry']['faces']['length']; faceI++) {
+//             if (resMesh['geometry']['faces'][i]['vertexNormals'][0]['x'] === fromObj['geometry']['faces'][faceI]['vertexNormals'][0]['x'] &&
+//                 resMesh['geometry']['faces'][i]['vertexNormals'][0]['y'] === fromObj['geometry']['faces'][faceI]['vertexNormals'][0]['y'] &&
+//                 resMesh['geometry']['faces'][i]['vertexNormals'][0]['z'] === fromObj['geometry']['faces'][faceI]['vertexNormals'][0]['z'] &&
+//                 resMesh['geometry']['faces'][i]['vertexNormals'][1]['x'] === fromObj['geometry']['faces'][faceI]['vertexNormals'][1]['x'] &&
+//                 resMesh['geometry']['faces'][i]['vertexNormals'][1]['y'] === fromObj['geometry']['faces'][faceI]['vertexNormals'][1]['y'] &&
+//                 resMesh['geometry']['faces'][i]['vertexNormals'][1]['z'] === fromObj['geometry']['faces'][faceI]['vertexNormals'][1]['z'] &&
+//                 resMesh['geometry']['faces'][i]['vertexNormals'][2]['x'] === fromObj['geometry']['faces'][faceI]['vertexNormals'][2]['x'] &&
+//                 resMesh['geometry']['faces'][i]['vertexNormals'][2]['y'] === fromObj['geometry']['faces'][faceI]['vertexNormals'][2]['y'] &&
+//                 resMesh['geometry']['faces'][i]['vertexNormals'][2]['z'] === fromObj['geometry']['faces'][faceI]['vertexNormals'][2]['z']) {
+//                 resMesh['geometry']['faces'][i]['color']['setHex'](
+//                     fromObj['geometry']['faces'][faceI]['color']['r'] * 0xff0000 +
+//                     fromObj['geometry']['faces'][faceI]['color']['g'] * 0x00ff00 +
+//                     fromObj['geometry']['faces'][faceI]['color']['b'] * 0x0000ff);
+//                 fromCopyObj = fromObj['geometry']['faces'][faceI]['color']['r'] * 0xff0000 +
+//                     fromObj['geometry']['faces'][faceI]['color']['g'] * 0x00ff00 +
+//                     fromObj['geometry']['faces'][faceI]['color']['b'] * 0x0000ff;
+//                 isCopyFaces = true;
+//             }
+//         }
+//         if (isCopyFaces === false) {
+//             for (let faceI = 0; faceI < toObj['geometry']['faces']['length']; faceI++) {
+//                 if (resMesh['geometry']['faces'][i]['vertexNormals'][0]['x'] === toObj['geometry']['faces'][faceI]['vertexNormals'][0]['x'] &&
+//                     resMesh['geometry']['faces'][i]['vertexNormals'][0]['y'] === toObj['geometry']['faces'][faceI]['vertexNormals'][0]['y'] &&
+//                     resMesh['geometry']['faces'][i]['vertexNormals'][0]['z'] === toObj['geometry']['faces'][faceI]['vertexNormals'][0]['z'] &&
+//                     resMesh['geometry']['faces'][i]['vertexNormals'][1]['x'] === toObj['geometry']['faces'][faceI]['vertexNormals'][1]['x'] &&
+//                     resMesh['geometry']['faces'][i]['vertexNormals'][1]['y'] === toObj['geometry']['faces'][faceI]['vertexNormals'][1]['y'] &&
+//                     resMesh['geometry']['faces'][i]['vertexNormals'][1]['z'] === toObj['geometry']['faces'][faceI]['vertexNormals'][1]['z'] &&
+//                     resMesh['geometry']['faces'][i]['vertexNormals'][2]['x'] === toObj['geometry']['faces'][faceI]['vertexNormals'][2]['x'] &&
+//                     resMesh['geometry']['faces'][i]['vertexNormals'][2]['y'] === toObj['geometry']['faces'][faceI]['vertexNormals'][2]['y'] &&
+//                     resMesh['geometry']['faces'][i]['vertexNormals'][2]['z'] === toObj['geometry']['faces'][faceI]['vertexNormals'][2]['z'] &&
+//                     resMesh['geometry']['faces'][i]['vertexNormals'][2]['z'] === toObj['geometry']['faces'][faceI]['vertexNormals'][2]['z']) {
+//                     resMesh['geometry']['faces'][i]['color']['setHex'](toObj['geometry']['faces'][faceI]['color']['r'] * 0xff0000 +
+//                         toObj['geometry']['faces'][faceI]['color']['g'] * 0x00ff00 +
+//                         toObj['geometry']['faces'][faceI]['color']['b'] * 0x0000ff);
+//                     fromCopyObj = toObj['geometry']['faces'][faceI]['color']['r'] * 0xff0000 +
+//                         toObj['geometry']['faces'][faceI]['color']['g'] * 0x00ff00 +
+//                         toObj['geometry']['faces'][faceI]['color']['b'] * 0x0000ff;
+//                     isCopyFaces = true;
+//                 }
+//             }
+//         }
+//         if (isCopyFaces === false) {
+//             resMesh['geometry']['faces'][i]['color']['setHex'](fromCopyObj);
+//         }
+//     }
+//     resMesh.castShadow = true;
+//     resMesh.receiveShadow = true;
+//     return resMesh;
+// }
+
 D3DLib.prototype.mergeModel = function (op, fromObj, toObj) {
-    let _dg3dObj = this;
+    //let _dg3dObj = this;
     let bspFrom = new ThreeBSP(fromObj);
     let bspTo = new ThreeBSP(toObj);
+    let fromMaterial = fromObj.material;
     let subObj = null;
     if (op === '-') {
         subObj = bspFrom['subtract'](bspTo);
@@ -1255,39 +1344,63 @@ D3DLib.prototype.mergeModel = function (op, fromObj, toObj) {
     } else if (op === '&') {
         subObj = bspFrom['intersect'](bspTo);
     } else {
-        _dg3dObj['addObject'](toObj);
-        return fromObj;
     }
-    let materials = [];
-    for (let i = 0; i < 1; i++) {
-        materials['push'](new THREE.MeshLambertMaterial({
-            vertexColors: THREE['FaceColors']
-        }));
-    }
-    let subMesh = subObj['toMesh'](fromObj.material);
+
+    let subMesh = subObj['toMesh'](fromMaterial);
     subMesh['material']['shading'] = THREE['FlatShading'];
     subMesh['geometry']['computeFaceNormals']();
     subMesh['geometry']['computeVertexNormals']();
-	subMesh['uuid'] = fromObj['uuid'];
-	subMesh['name'] = fromObj['name'];
+    subMesh['uuid'] = fromObj['uuid'];
+    subMesh['name'] = fromObj['name'];
     subMesh['material']['needsUpdate'] = true;
     subMesh['geometry']['buffersNeedUpdate'] = true;
     subMesh['geometry']['uvsNeedUpdate'] = true;
+
     let fromCopyObj = null;
     for (let i = 0; i < subMesh['geometry']['faces']['length']; i++) {
         let isCopyFaces = false;
         for (let faceI = 0; faceI < fromObj['geometry']['faces']['length']; faceI++) {
-            if (subMesh['geometry']['faces'][i]['vertexNormals'][0]['x'] === fromObj['geometry']['faces'][faceI]['vertexNormals'][0]['x'] && subMesh['geometry']['faces'][i]['vertexNormals'][0]['y'] === fromObj['geometry']['faces'][faceI]['vertexNormals'][0]['y'] && subMesh['geometry']['faces'][i]['vertexNormals'][0]['z'] === fromObj['geometry']['faces'][faceI]['vertexNormals'][0]['z'] && subMesh['geometry']['faces'][i]['vertexNormals'][1]['x'] === fromObj['geometry']['faces'][faceI]['vertexNormals'][1]['x'] && subMesh['geometry']['faces'][i]['vertexNormals'][1]['y'] === fromObj['geometry']['faces'][faceI]['vertexNormals'][1]['y'] && subMesh['geometry']['faces'][i]['vertexNormals'][1]['z'] === fromObj['geometry']['faces'][faceI]['vertexNormals'][1]['z'] && subMesh['geometry']['faces'][i]['vertexNormals'][2]['x'] === fromObj['geometry']['faces'][faceI]['vertexNormals'][2]['x'] && subMesh['geometry']['faces'][i]['vertexNormals'][2]['y'] === fromObj['geometry']['faces'][faceI]['vertexNormals'][2]['y'] && subMesh['geometry']['faces'][i]['vertexNormals'][2]['z'] === fromObj['geometry']['faces'][faceI]['vertexNormals'][2]['z']) {
-                subMesh['geometry']['faces'][i]['color']['setHex'](fromObj['geometry']['faces'][faceI]['color']['r'] * 0xff0000 + fromObj['geometry']['faces'][faceI]['color']['g'] * 0x00ff00 + fromObj['geometry']['faces'][faceI]['color']['b'] * 0x0000ff);
-                fromCopyObj = fromObj['geometry']['faces'][faceI]['color']['r'] * 0xff0000 + fromObj['geometry']['faces'][faceI]['color']['g'] * 0x00ff00 + fromObj['geometry']['faces'][faceI]['color']['b'] * 0x0000ff;
+            if (subMesh['geometry']['faces'][i]['vertexNormals'][0]['x'] === fromObj['geometry']['faces'][faceI]['vertexNormals'][0]['x'] &&
+                subMesh['geometry']['faces'][i]['vertexNormals'][0]['y'] === fromObj['geometry']['faces'][faceI]['vertexNormals'][0]['y'] &&
+                subMesh['geometry']['faces'][i]['vertexNormals'][0]['z'] === fromObj['geometry']['faces'][faceI]['vertexNormals'][0]['z'] &&
+                subMesh['geometry']['faces'][i]['vertexNormals'][1]['x'] === fromObj['geometry']['faces'][faceI]['vertexNormals'][1]['x'] &&
+                subMesh['geometry']['faces'][i]['vertexNormals'][1]['y'] === fromObj['geometry']['faces'][faceI]['vertexNormals'][1]['y'] &&
+                subMesh['geometry']['faces'][i]['vertexNormals'][1]['z'] === fromObj['geometry']['faces'][faceI]['vertexNormals'][1]['z'] &&
+                subMesh['geometry']['faces'][i]['vertexNormals'][2]['x'] === fromObj['geometry']['faces'][faceI]['vertexNormals'][2]['x'] &&
+                subMesh['geometry']['faces'][i]['vertexNormals'][2]['y'] === fromObj['geometry']['faces'][faceI]['vertexNormals'][2]['y'] &&
+                subMesh['geometry']['faces'][i]['vertexNormals'][2]['z'] === fromObj['geometry']['faces'][faceI]['vertexNormals'][2]['z'])
+            {
+                subMesh['geometry']['faces'][i]['color']['setHex'](
+                    fromObj['geometry']['faces'][faceI]['color']['r'] * 0xff0000 +
+                    fromObj['geometry']['faces'][faceI]['color']['g'] * 0x00ff00 +
+                    fromObj['geometry']['faces'][faceI]['color']['b'] * 0x0000ff
+                );
+                fromCopyObj = fromObj['geometry']['faces'][faceI]['color']['r'] * 0xff0000 +
+                    fromObj['geometry']['faces'][faceI]['color']['g'] * 0x00ff00 +
+                    fromObj['geometry']['faces'][faceI]['color']['b'] * 0x0000ff;
                 isCopyFaces = true;
             }
         }
         if (isCopyFaces === false) {
             for (let faceI = 0; faceI < toObj['geometry']['faces']['length']; faceI++) {
-                if (subMesh['geometry']['faces'][i]['vertexNormals'][0]['x'] === toObj['geometry']['faces'][faceI]['vertexNormals'][0]['x'] && subMesh['geometry']['faces'][i]['vertexNormals'][0]['y'] === toObj['geometry']['faces'][faceI]['vertexNormals'][0]['y'] && subMesh['geometry']['faces'][i]['vertexNormals'][0]['z'] === toObj['geometry']['faces'][faceI]['vertexNormals'][0]['z'] && subMesh['geometry']['faces'][i]['vertexNormals'][1]['x'] === toObj['geometry']['faces'][faceI]['vertexNormals'][1]['x'] && subMesh['geometry']['faces'][i]['vertexNormals'][1]['y'] === toObj['geometry']['faces'][faceI]['vertexNormals'][1]['y'] && subMesh['geometry']['faces'][i]['vertexNormals'][1]['z'] === toObj['geometry']['faces'][faceI]['vertexNormals'][1]['z'] && subMesh['geometry']['faces'][i]['vertexNormals'][2]['x'] === toObj['geometry']['faces'][faceI]['vertexNormals'][2]['x'] && subMesh['geometry']['faces'][i]['vertexNormals'][2]['y'] === toObj['geometry']['faces'][faceI]['vertexNormals'][2]['y'] && subMesh['geometry']['faces'][i]['vertexNormals'][2]['z'] === toObj['geometry']['faces'][faceI]['vertexNormals'][2]['z'] && subMesh['geometry']['faces'][i]['vertexNormals'][2]['z'] === toObj['geometry']['faces'][faceI]['vertexNormals'][2]['z']) {
-                    subMesh['geometry']['faces'][i]['color']['setHex'](toObj['geometry']['faces'][faceI]['color']['r'] * 0xff0000 + toObj['geometry']['faces'][faceI]['color']['g'] * 0x00ff00 + toObj['geometry']['faces'][faceI]['color']['b'] * 0x0000ff);
-                    fromCopyObj = toObj['geometry']['faces'][faceI]['color']['r'] * 0xff0000 + toObj['geometry']['faces'][faceI]['color']['g'] * 0x00ff00 + toObj['geometry']['faces'][faceI]['color']['b'] * 0x0000ff;
+                if (subMesh['geometry']['faces'][i]['vertexNormals'][0]['x'] === toObj['geometry']['faces'][faceI]['vertexNormals'][0]['x'] &&
+                    subMesh['geometry']['faces'][i]['vertexNormals'][0]['y'] === toObj['geometry']['faces'][faceI]['vertexNormals'][0]['y'] &&
+                    subMesh['geometry']['faces'][i]['vertexNormals'][0]['z'] === toObj['geometry']['faces'][faceI]['vertexNormals'][0]['z'] &&
+                    subMesh['geometry']['faces'][i]['vertexNormals'][1]['x'] === toObj['geometry']['faces'][faceI]['vertexNormals'][1]['x'] &&
+                    subMesh['geometry']['faces'][i]['vertexNormals'][1]['y'] === toObj['geometry']['faces'][faceI]['vertexNormals'][1]['y'] &&
+                    subMesh['geometry']['faces'][i]['vertexNormals'][1]['z'] === toObj['geometry']['faces'][faceI]['vertexNormals'][1]['z'] &&
+                    subMesh['geometry']['faces'][i]['vertexNormals'][2]['x'] === toObj['geometry']['faces'][faceI]['vertexNormals'][2]['x'] &&
+                    subMesh['geometry']['faces'][i]['vertexNormals'][2]['y'] === toObj['geometry']['faces'][faceI]['vertexNormals'][2]['y'] &&
+                    subMesh['geometry']['faces'][i]['vertexNormals'][2]['z'] === toObj['geometry']['faces'][faceI]['vertexNormals'][2]['z'] &&
+                    subMesh['geometry']['faces'][i]['vertexNormals'][2]['z'] === toObj['geometry']['faces'][faceI]['vertexNormals'][2]['z']) {
+                    subMesh['geometry']['faces'][i]['color']['setHex'](
+                        toObj['geometry']['faces'][faceI]['color']['r'] * 0xff0000 +
+                        toObj['geometry']['faces'][faceI]['color']['g'] * 0x00ff00 +
+                        toObj['geometry']['faces'][faceI]['color']['b'] * 0x0000ff
+                    );
+                    fromCopyObj = toObj['geometry']['faces'][faceI]['color']['r'] * 0xff0000 +
+                        toObj['geometry']['faces'][faceI]['color']['g'] * 0x00ff00 +
+                        toObj['geometry']['faces'][faceI]['color']['b'] * 0x0000ff;
                     isCopyFaces = true;
                 }
             }
@@ -1453,14 +1566,19 @@ D3DLib.prototype.addTunnel = function (config, points) {
         };
         roomCurve = new CustomCurve(10)
     }
-    let textureLoader = new THREE.TextureLoader()['load'](config['imgurl']);
-    textureLoader['wrapS'] = textureLoader['wrapT'] = THREE['RepeatWrapping'];
-    textureLoader['anisotropy'] = 16;
-    let material = new THREE.MeshLambertMaterial({
-        map: textureLoader,
-        side: THREE['DoubleSide']
-    });
-
+    let material = null;
+    if (config.hasOwnProperty('imgurl') && config['imgurl'] !== ''){
+        let textureLoader = new THREE.TextureLoader()['load'](config['imgurl']);
+        textureLoader['wrapS'] = textureLoader['wrapT'] = THREE['RepeatWrapping'];
+        textureLoader['anisotropy'] = 16;
+        material = new THREE.MeshLambertMaterial({
+            map: textureLoader,
+            side: THREE['DoubleSide']
+        });
+    } else {
+        let color = config['color'] || 'green';
+        material = new THREE.MeshBasicMaterial({color:color});
+    }
 //    _dg3dObj['vcmaterial']['push'](material);
     let geometry = new THREE.TubeGeometry(roomCurve, 750, config['radiu'], 8, false);
     let mesh = new THREE.Mesh(geometry, material);

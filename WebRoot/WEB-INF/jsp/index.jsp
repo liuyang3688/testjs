@@ -33,6 +33,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
     <script src="/glserver/static/js/stats.min.js"></script>
     <script src="/glserver/static/js/OrbitControls.js"></script>
     <script src="/glserver/static/js/ThreeBSP.js"></script>
+    <%--<script src="/glserver/static/js/ThreeCSG.js"></script>--%>
     <script src="/glserver/static/js/curves/NURBSCurve.js"></script>
     <script src="/glserver/static/js/curves/NURBSSurface.js"></script>
     <script src="/glserver/static/js/curves/NURBSUtils.js"></script>

@@ -52,16 +52,34 @@ public class LabelDao {
 						text.put("uuid", result.getInt("uuid"));
 						text.put("name", result.getString("name"));
 						text.put("font", result.getString("font"));
+						text.put("color", result.getString("color"));
 						text.put("text", result.getString("text"));
 						text.put("offX", result.getDouble("offX"));
 						text.put("offY", result.getDouble("offY"));
-						for(int i=0; i<listIds.length; ++i){	
-							int labelId = Integer.parseInt(listIds[i]);
-							if(!_texts.containsKey(labelId)){
-								JSONArray list = new JSONArray();
-								_texts.put(labelId, list);
-							}
-							_texts.get(labelId).add(text);
+						for(int i=0; i<listIds.length; ++i){
+						    String idstr = listIds[i];
+						    int pos = 0;
+						    if ((pos = idstr.indexOf('-')) > 0){
+						       String start = idstr.substring(0, pos);
+						       String end = idstr.substring(pos+1);
+                                int idStart = Integer.parseInt(start);
+                                int idEnd = Integer.parseInt(end);
+                                while(idStart <= idEnd) {
+                                    if(!_texts.containsKey(idStart)){
+                                        JSONArray list = new JSONArray();
+                                        _texts.put(idStart, list);
+                                    }
+                                    _texts.get(idStart).add(text);
+                                    idStart ++;
+                                }
+                            } else {
+                                int labelId = Integer.parseInt(idstr);
+                                if(!_texts.containsKey(labelId)){
+                                    JSONArray list = new JSONArray();
+                                    _texts.put(labelId, list);
+                                }
+                                _texts.get(labelId).add(text);
+                            }
 						}
 					}
 				});
@@ -73,7 +91,8 @@ public class LabelDao {
 	}
 	public List<JSONObject> getAllLabel()
 	{
-		fetchAllText();
+		_texts = null;
+	    fetchAllText();
 		List<JSONObject> list = new ArrayList<JSONObject>();
 		try {
 			//String sqlFilter = " where isDirty=1 and isShow=1";
@@ -102,6 +121,7 @@ public class LabelDao {
 						label.put("scl_y", result.getDouble("scl_y"));
 						label.put("scl_z", result.getDouble("scl_z"));
 						label.put("parent", result.getString("parent"));
+						label.put("fillColor", result.getString("fillColor"));
 						label.put("pic", result.getString("pic"));
 					
 						if(_texts.containsKey(labelId)) {
