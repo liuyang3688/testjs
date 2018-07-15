@@ -6,57 +6,10 @@
     </artifacts-to-build>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="4ee0e450-66f1-4795-80af-8887a27f4d9e" name="Default" comment="idea modify">
-      <change afterPath="$PROJECT_DIR$/.idea/artifacts/glserver_war_exploded.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/libraries/Spring_4_3_18_RELEASE.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.settings/com.eclipsesource.jshint.ui.prefs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.settings/org.eclipse.core.resources.prefs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/WebRoot/static/js/.idea/js.iml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/WebRoot/static/js/.idea/misc.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/WebRoot/static/js/.idea/modules.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/WebRoot/static/js/.idea/workspace.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/WebRoot/static/js/three.min.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/WebRoot/static/pic/device/14urouter.jpg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/WebRoot/static/pic/device/1ufirewall.jpg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/WebRoot/static/pic/device/1ufwdiso.jpg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/WebRoot/static/pic/device/1ukvm.jpg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/WebRoot/static/pic/device/1uswitch.jpg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/WebRoot/static/pic/device/21urouter_h3c.jpg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/WebRoot/static/pic/device/21urouter_zx.jpg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/WebRoot/static/pic/device/2udetector.jpg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/WebRoot/static/pic/device/2udframe.jpg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/WebRoot/static/pic/device/2uenc.jpg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/WebRoot/static/pic/device/2uencmgr.jpg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/WebRoot/static/pic/device/2ufirewall.jpg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/WebRoot/static/pic/device/2ulizhuo.jpg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/WebRoot/static/pic/device/2uroutepwr.jpg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/WebRoot/static/pic/device/2urvsiso.jpg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/WebRoot/static/pic/device/2userver.jpg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/WebRoot/static/pic/device/3uraid.jpg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/WebRoot/static/pic/device/3userver.jpg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/WebRoot/static/pic/device/4uclock.jpg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/WebRoot/static/pic/device/4userver.jpg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/WebRoot/static/pic/device/4uworksta.jpg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/WebRoot/static/pic/menus/aeroview.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/glserver.iml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/com/leotech/controller/ButtonController.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/com/leotech/controller/EventController.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/com/leotech/dao/ButtonDao.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/com/leotech/dao/DeviceDao.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/com/leotech/dao/EventDao.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/com/leotech/service/ButtonService.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/com/leotech/service/EventService.java" afterDir="false" />
+    <list default="true" id="4ee0e450-66f1-4795-80af-8887a27f4d9e" name="Default" comment="">
       <change beforePath="$PROJECT_DIR$/.classpath" beforeDir="false" afterPath="$PROJECT_DIR$/.classpath" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/testjs.iml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.myumldata" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/.project" beforeDir="false" afterPath="$PROJECT_DIR$/.project" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/WebRoot/WEB-INF/classes/com/leotech/controller/CloneController.class" beforeDir="false" afterPath="$PROJECT_DIR$/WebRoot/WEB-INF/classes/com/leotech/controller/CloneController.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/WebRoot/WEB-INF/classes/com/leotech/controller/IndexController.class" beforeDir="false" afterPath="$PROJECT_DIR$/WebRoot/WEB-INF/classes/com/leotech/controller/IndexController.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/WebRoot/WEB-INF/classes/com/leotech/controller/LabelController.class" beforeDir="false" afterPath="$PROJECT_DIR$/WebRoot/WEB-INF/classes/com/leotech/controller/LabelController.class" afterDir="false" />
@@ -74,41 +27,22 @@
       <change beforePath="$PROJECT_DIR$/WebRoot/WEB-INF/classes/com/leotech/service/LabelService.class" beforeDir="false" afterPath="$PROJECT_DIR$/WebRoot/WEB-INF/classes/com/leotech/service/LabelService.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/WebRoot/WEB-INF/classes/com/leotech/service/MeshService.class" beforeDir="false" afterPath="$PROJECT_DIR$/WebRoot/WEB-INF/classes/com/leotech/service/MeshService.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/WebRoot/WEB-INF/classes/com/leotech/util/CreateUserRolePermissionTable.class" beforeDir="false" afterPath="$PROJECT_DIR$/WebRoot/WEB-INF/classes/com/leotech/util/CreateUserRolePermissionTable.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/WebRoot/WEB-INF/classes/com/leotech/util/DateFormat.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/WebRoot/WEB-INF/classes/com/leotech/util/DateUtil.class" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/WebRoot/WEB-INF/classes/com/leotech/util/ErJiStateConfig.class" beforeDir="false" afterPath="$PROJECT_DIR$/WebRoot/WEB-INF/classes/com/leotech/util/ErJiStateConfig.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/WebRoot/WEB-INF/classes/com/leotech/util/GlobalListener.class" beforeDir="false" afterPath="$PROJECT_DIR$/WebRoot/WEB-INF/classes/com/leotech/util/GlobalListener.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/WebRoot/WEB-INF/classes/com/leotech/util/GlobalPathUtil.class" beforeDir="false" afterPath="$PROJECT_DIR$/WebRoot/WEB-INF/classes/com/leotech/util/GlobalPathUtil.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/WebRoot/WEB-INF/classes/com/leotech/util/IesLogger.class" beforeDir="false" afterPath="$PROJECT_DIR$/WebRoot/WEB-INF/classes/com/leotech/util/IesLogger.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/WebRoot/WEB-INF/classes/com/leotech/util/JxlExcel.class" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/WebRoot/WEB-INF/classes/com/leotech/util/Logger.class" beforeDir="false" afterPath="$PROJECT_DIR$/WebRoot/WEB-INF/classes/com/leotech/util/Logger.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/WebRoot/WEB-INF/classes/com/leotech/util/MyTime.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/WebRoot/WEB-INF/classes/com/leotech/util/PinyinUtil.class" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/WebRoot/WEB-INF/classes/com/leotech/util/PublicLib.class" beforeDir="false" afterPath="$PROJECT_DIR$/WebRoot/WEB-INF/classes/com/leotech/util/PublicLib.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/WebRoot/WEB-INF/classes/com/leotech/util/QueryConfig.class" beforeDir="false" afterPath="$PROJECT_DIR$/WebRoot/WEB-INF/classes/com/leotech/util/QueryConfig.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/WebRoot/WEB-INF/classes/com/leotech/util/ReadExcel.class" beforeDir="false" afterPath="$PROJECT_DIR$/WebRoot/WEB-INF/classes/com/leotech/util/ReadExcel.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/WebRoot/WEB-INF/classes/com/leotech/util/ReflectHelper.class" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/WebRoot/WEB-INF/classes/com/leotech/util/SocketForC.class" beforeDir="false" afterPath="$PROJECT_DIR$/WebRoot/WEB-INF/classes/com/leotech/util/SocketForC.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/WebRoot/WEB-INF/classes/com/leotech/util/SpringContextBase.class" beforeDir="false" afterPath="$PROJECT_DIR$/WebRoot/WEB-INF/classes/com/leotech/util/SpringContextBase.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/WebRoot/WEB-INF/classes/com/leotech/util/StringUtil.class" beforeDir="false" afterPath="$PROJECT_DIR$/WebRoot/WEB-INF/classes/com/leotech/util/StringUtil.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/WebRoot/WEB-INF/classes/com/leotech/util/SystemUtil.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/WebRoot/WEB-INF/classes/com/leotech/util/Test.class" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/WebRoot/WEB-INF/classes/spring-config/spring-mvc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/WebRoot/WEB-INF/classes/spring-config/spring-mvc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/WebRoot/WEB-INF/jsp/index.jsp" beforeDir="false" afterPath="$PROJECT_DIR$/WebRoot/WEB-INF/jsp/index.jsp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/WebRoot/login.jsp" beforeDir="false" afterPath="$PROJECT_DIR$/WebRoot/login.jsp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/WebRoot/static/js/common.js" beforeDir="false" afterPath="$PROJECT_DIR$/WebRoot/static/js/common.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/WebRoot/static/js/d3d.js" beforeDir="false" afterPath="$PROJECT_DIR$/WebRoot/static/js/d3d.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/WebRoot/static/js/three.js" beforeDir="false" afterPath="$PROJECT_DIR$/WebRoot/static/js/three.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/WebRoot/static/pic/c9/C9-(20U-23U).png" beforeDir="false" afterPath="$PROJECT_DIR$/WebRoot/static/pic/c9/dataserver.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/com/leotech/controller/CloneController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/com/leotech/controller/CloneController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/WebRoot/static/pic/cabinet_door2.png" beforeDir="false" afterPath="$PROJECT_DIR$/WebRoot/static/pic/cabinet_door2.png" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/com/leotech/controller/IndexController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/com/leotech/controller/IndexController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/com/leotech/controller/LabelController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/com/leotech/controller/LabelController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/com/leotech/controller/MeshController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/com/leotech/controller/MeshController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/com/leotech/dao/CloneDao.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/com/leotech/dao/CloneDao.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/com/leotech/dao/LabelDao.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/com/leotech/dao/LabelDao.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/com/leotech/dao/MeshDao.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/com/leotech/dao/MeshDao.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/com/leotech/service/CloneService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/com/leotech/service/CloneService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/com/leotech/service/MeshService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/com/leotech/service/MeshService.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/com/leotech/util/DateFormat.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/com/leotech/util/DateFormat.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/com/leotech/util/DateUtil.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/com/leotech/util/DateUtil.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/com/leotech/util/JxlExcel.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/com/leotech/util/JxlExcel.java" afterDir="false" />
@@ -116,7 +50,6 @@
       <change beforePath="$PROJECT_DIR$/src/com/leotech/util/PinyinUtil.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/com/leotech/util/PinyinUtil.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/com/leotech/util/ReflectHelper.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/com/leotech/util/ReflectHelper.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/com/leotech/util/SystemUtil.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/com/leotech/util/SystemUtil.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/com/leotech/util/Test.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/com/leotech/util/Test.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/spring-config/spring-mvc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/src/spring-config/spring-mvc.xml" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/WebRoot/WEB-INF/classes/" />
@@ -133,34 +66,11 @@
       <file leaf-file-name="d3d.js" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/WebRoot/static/js/d3d.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="73">
-              <caret line="1317" column="11" selection-start-line="1317" selection-start-column="11" selection-end-line="1317" selection-end-column="11" />
+            <state relative-caret-position="169">
+              <caret line="649" column="14" selection-start-line="649" selection-start-column="14" selection-end-line="649" selection-end-column="14" />
               <folding>
-                <element signature="e#918#2652#0" />
-                <element signature="e#2720#2947#0" />
-                <element signature="e#3014#3305#0" />
-                <element signature="e#3397#4224#0" />
-                <element signature="e#4293#4360#0" />
-                <element signature="e#4408#4664#0" />
-                <element signature="e#4718#4754#0" />
-                <element signature="e#4811#5163#0" />
-                <element signature="e#5228#5717#0" />
-                <element signature="e#5808#6466#0" />
-                <element signature="e#6523#7829#0" />
-                <element signature="e#7885#7916#0" />
-                <element signature="e#7963#8214#0" />
-                <element signature="e#8305#8367#0" />
-                <element signature="e#8403#9270#0" />
-                <element signature="e#9312#15002#0" />
-                <element signature="e#15038#15665#0" />
-                <element signature="e#15700#16080#0" />
-                <element signature="e#16117#18212#0" />
-                <element signature="e#18311#18451#0" />
-                <element signature="e#18517#18798#0" />
-                <element signature="e#18840#19253#0" />
-                <element signature="e#19295#19652#0" />
-                <element signature="e#19696#19784#0" />
-                <element signature="e#53589#53841#0" />
+                <element signature="n#style#0;n#img#0;n#!!top" expanded="true" />
+                <element signature="e#16299#18091#0" />
               </folding>
             </state>
           </provider>
@@ -173,6 +83,11 @@
       <find>cabList</find>
       <find>var</find>
       <find>buttons</find>
+      <find>createLight</find>
+      <find>createBox</find>
+      <find>initParticle</find>
+      <find>smoking.png</find>
+      <find>makeTextSprite</find>
     </findStrings>
     <replaceStrings>
       <replace>let</replace>
@@ -234,6 +149,25 @@
               <item name="testjs" type="462c0819:PsiDirectoryNode" />
               <item name="WebRoot" type="462c0819:PsiDirectoryNode" />
             </path>
+            <path>
+              <item name="testjs" type="b2602c69:ProjectViewProjectNode" />
+              <item name="testjs" type="462c0819:PsiDirectoryNode" />
+              <item name="WebRoot" type="462c0819:PsiDirectoryNode" />
+              <item name="static" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="testjs" type="b2602c69:ProjectViewProjectNode" />
+              <item name="testjs" type="462c0819:PsiDirectoryNode" />
+              <item name="WebRoot" type="462c0819:PsiDirectoryNode" />
+              <item name="WEB-INF" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="testjs" type="b2602c69:ProjectViewProjectNode" />
+              <item name="testjs" type="462c0819:PsiDirectoryNode" />
+              <item name="WebRoot" type="462c0819:PsiDirectoryNode" />
+              <item name="WEB-INF" type="462c0819:PsiDirectoryNode" />
+              <item name="jsp" type="462c0819:PsiDirectoryNode" />
+            </path>
           </expand>
           <select />
         </subPane>
@@ -251,7 +185,7 @@
     <property name="project.structure.last.edited" value="Artifacts" />
     <property name="project.structure.proportion" value="0.15" />
     <property name="project.structure.side.proportion" value="0.2" />
-    <property name="settings.editor.selected.configurable" value="vcs.Git" />
+    <property name="settings.editor.selected.configurable" value="editor.preferences.fonts.default" />
   </component>
   <component name="RunDashboard">
     <option name="ruleStates">
@@ -289,7 +223,7 @@
       <option name="OPEN_IN_BROWSER_URL" value="http://localhost:8080/glserver/index" />
       <option name="UPDATE_ON_FRAME_DEACTIVATION" value="true" />
       <option name="UPDATE_CLASSES_ON_FRAME_DEACTIVATION" value="true" />
-      <option name="UPDATING_POLICY" value="redeploy-artifacts" />
+      <option name="SHOW_DIALOG_ON_UPDATE" value="false" />
       <deployment>
         <artifact name="glserver:war exploded">
           <settings>
@@ -350,24 +284,25 @@
     </configuration>
   </component>
   <component name="ToolWindowManager">
-    <frame x="-8" y="-8" width="1382" height="744" extended-state="6" />
+    <frame x="-8" y="-8" width="1382" height="744" extended-state="7" />
+    <editor active="true" />
     <layout>
       <window_info anchor="bottom" id="TODO" order="6" />
       <window_info anchor="bottom" id="Messages" order="7" weight="0.47959185" />
       <window_info anchor="right" id="Palette&#9;" order="3" />
       <window_info anchor="bottom" id="Java Enterprise" order="7" />
-      <window_info anchor="bottom" id="Event Log" order="7" sideWeight="0.16910689" side_tool="true" visible="true" weight="0.5581015" />
+      <window_info anchor="bottom" id="Event Log" order="7" sideWeight="0.24357034" side_tool="true" visible="true" weight="0.0" />
       <window_info anchor="right" id="Maven Projects" order="3" />
       <window_info anchor="bottom" id="Database Changes" order="7" show_stripe_button="false" />
-      <window_info active="true" anchor="bottom" id="Version Control" order="7" sideWeight="0.8308931" visible="true" weight="0.5581015" />
-      <window_info anchor="bottom" id="Run" order="2" sideWeight="0.40998486" weight="0.5544218" />
+      <window_info anchor="bottom" id="Version Control" order="7" sideWeight="0.8290469" weight="0.35204083" />
+      <window_info anchor="bottom" id="Run" order="2" sideWeight="0.7564297" weight="0.0" />
       <window_info anchor="bottom" id="Spring" order="8" />
       <window_info anchor="bottom" id="Terminal" order="7" />
       <window_info id="Designer" order="1" />
-      <window_info content_ui="combo" id="Project" order="0" sideWeight="0.41148326" visible="true" weight="0.21888727" />
+      <window_info content_ui="combo" id="Project" order="0" sideWeight="0.41148326" weight="0.22617246" />
       <window_info id="Web" order="2" side_tool="true" />
       <window_info anchor="right" id="Database" order="3" />
-      <window_info id="Structure" order="4" sideWeight="0.5885168" weight="0.22617246" />
+      <window_info id="Structure" order="4" sideWeight="0.5885168" visible="true" weight="0.11951589" />
       <window_info id="Favorites" order="3" side_tool="true" />
       <window_info anchor="bottom" id="Debug" order="3" sideWeight="0.8931186" weight="0.4488189" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.24963397" />
@@ -423,12 +358,14 @@
   </component>
   <component name="VcsManagerConfiguration">
     <option name="CHECK_CODE_SMELLS_BEFORE_PROJECT_COMMIT" value="false" />
+    <option name="SHOW_UNVERSIONED_FILES_WHILE_COMMIT" value="false" />
     <MESSAGE value="idea modify" />
-    <option name="LAST_COMMIT_MESSAGE" value="idea modify" />
+    <MESSAGE value="commit test" />
+    <option name="LAST_COMMIT_MESSAGE" value="commit test" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
-      <option name="time" value="4" />
+      <option name="time" value="7" />
     </breakpoint-manager>
   </component>
   <component name="editorHistoryManager">
@@ -437,70 +374,46 @@
         <state relative-caret-position="22128">
           <caret line="1383" selection-start-line="1383" selection-end-line="1383" />
           <folding>
-            <element signature="e#918#2652#0" />
-            <element signature="e#2720#2947#0" />
-            <element signature="e#3014#3305#0" />
-            <element signature="e#3397#4224#0" />
-            <element signature="e#4293#4360#0" />
-            <element signature="e#4408#4664#0" />
-            <element signature="e#4718#4754#0" />
-            <element signature="e#4811#5163#0" />
-            <element signature="e#5228#5717#0" />
-            <element signature="e#5808#6466#0" />
-            <element signature="e#6523#7829#0" />
-            <element signature="e#7885#7916#0" />
-            <element signature="e#7963#8214#0" />
-            <element signature="e#8305#8367#0" />
-            <element signature="e#8403#9270#0" />
-            <element signature="e#9312#15002#0" />
-            <element signature="e#15038#15665#0" />
-            <element signature="e#15700#16080#0" />
-            <element signature="e#16117#18212#0" />
-            <element signature="e#18311#18451#0" />
-            <element signature="e#18517#18798#0" />
-            <element signature="e#18840#19253#0" />
-            <element signature="e#19295#19652#0" />
-            <element signature="e#19696#19784#0" />
-            <element signature="e#53589#53841#0" />
+            <element signature="n#style#0;n#img#0;n#!!top" expanded="true" />
+            <element signature="e#16299#18091#0" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/WebRoot/static/js/Tween.min.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="32">
+          <caret line="2" selection-start-line="2" selection-end-line="2" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/WebRoot/WEB-INF/jsp/index.jsp">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-620" />
+        <state relative-caret-position="96">
+          <caret line="30" column="56" selection-start-line="30" selection-start-column="56" selection-end-line="30" selection-end-column="56" />
+        </state>
       </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/WebRoot/static/js/three.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="69">
+          <caret line="40449" column="8" selection-start-line="40449" selection-start-column="8" selection-end-line="40449" selection-end-column="8" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/WebRoot/static/js/stats.min.js">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/WebRoot/index.jsp">
+      <provider selected="true" editor-type-id="text-editor" />
     </entry>
     <entry file="file://$PROJECT_DIR$/WebRoot/static/js/d3d.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="73">
-          <caret line="1317" column="11" selection-start-line="1317" selection-start-column="11" selection-end-line="1317" selection-end-column="11" />
+        <state relative-caret-position="169">
+          <caret line="649" column="14" selection-start-line="649" selection-start-column="14" selection-end-line="649" selection-end-column="14" />
           <folding>
-            <element signature="e#918#2652#0" />
-            <element signature="e#2720#2947#0" />
-            <element signature="e#3014#3305#0" />
-            <element signature="e#3397#4224#0" />
-            <element signature="e#4293#4360#0" />
-            <element signature="e#4408#4664#0" />
-            <element signature="e#4718#4754#0" />
-            <element signature="e#4811#5163#0" />
-            <element signature="e#5228#5717#0" />
-            <element signature="e#5808#6466#0" />
-            <element signature="e#6523#7829#0" />
-            <element signature="e#7885#7916#0" />
-            <element signature="e#7963#8214#0" />
-            <element signature="e#8305#8367#0" />
-            <element signature="e#8403#9270#0" />
-            <element signature="e#9312#15002#0" />
-            <element signature="e#15038#15665#0" />
-            <element signature="e#15700#16080#0" />
-            <element signature="e#16117#18212#0" />
-            <element signature="e#18311#18451#0" />
-            <element signature="e#18517#18798#0" />
-            <element signature="e#18840#19253#0" />
-            <element signature="e#19295#19652#0" />
-            <element signature="e#19696#19784#0" />
-            <element signature="e#53589#53841#0" />
+            <element signature="n#style#0;n#img#0;n#!!top" expanded="true" />
+            <element signature="e#16299#18091#0" />
           </folding>
         </state>
       </provider>

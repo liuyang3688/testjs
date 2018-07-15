@@ -31,6 +31,7 @@ D3DLib.prototype.start = function()
 	this.initMouseCtrl();
 	this.initThree();
 	this.initAxisHelper();
+	this.initStats();
 	this.initLight();
 	this.initBgImg();
 	this.bindEventResize();
@@ -256,11 +257,16 @@ D3DLib.prototype.initMouseCtrl = function () {
     this.controls.maxPolarAngle = Math.PI * 0.48;
     this.controls.minDistance=500;
     this.controls.maxDistance = 3000;
+    this.controls.zoomSpeed = 2;
     this.controls.addEventListener('change', this.updateControls);
 };
 //////////////////////////////////////////////////
 D3DLib.prototype.aeroview = function(){
-	D3DOBJ.controls.autoRotate = !D3DOBJ.controls.autoRotate;
+	if (!D3DOBJ.controls.autoRotate){
+        D3DOBJ.camera.position.set(1000,800,1000);
+        D3DOBJ.camera.lookAt(0,0,0);
+    }
+    D3DOBJ.controls.autoRotate = !D3DOBJ.controls.autoRotate;
 };
 D3DLib.prototype.roam = function(){
 	let pathName = 'dynamicPath001';
@@ -537,79 +543,112 @@ D3DLib.prototype.air = function(){
 	GCONFIG['air'] = !GCONFIG['air'];
 };
 D3DLib.prototype.smoke = function(){
-    // let nurbs1Name = 'nurbs1001';
-    // let nurbs2Name = 'nurbs1002';
-    // //let smokeName2 = 'smokingtext';
-    // if (!GCONFIG['smoke']) {
-    //     let nurbs1Config = {
-    //         name: nurbs1Name,
-    //         type: 'nurbs',
-    //         position: {
-    //             x: -150,
-    //             y: 210,
-    //             z: -280,
-    //             w: 3
-    //         },
-    //         size: {
-    //             x: 150,
-    //             y: 300,
-    //             z: 150
-    //         },
-    //         number: 350,
-    //         color: 0xd71345,
-    //         imgurl: GCONGIG['pic_path'] + 'smoking.png'
-    //     };
-    //     D3DOBJ['addSprite'](nurbs1Config);
-    //     let smokeConfig1 = {
-    //         name: name1,
-    //         type: 'nurbs',
-    //         position: {
-    //             x: 120,
-    //             y: 210,
-    //             z: 0,
-    //             w: 5
-    //         },
-    //         size: {
-    //             x: 150,
-    //             y: 300,
-    //             z: 150
-    //         },
-    //         number: 350,
-    //         color: 0xf47920,
-    //         imgurl: './res/smoking.png'
-    //     };
-    //     msj3DObj['addSprite'](smokeConfig1);
-    //
-    //     let config2 = {
-    //         name: smokeName2,
-    //         position: {
-    //             x: 0,
-    //             y: 60,
-    //             z: -430
-    //         },
-    //         size: {
-    //             x: 256,
-    //             y: 128,
-    //             z: 80
-    //         },
-    //         color: {
-    //             r: 34,
-    //             g: 76,
-    //             b: 143,
-    //             a: 0.8
-    //         },
-    //         imgurl: '',
-    //         fontsize: 18,
-    //         message: '烟雾报警'
-    //     };
-    //     msj3DObj['commonFunc']['makeTextSprite']('cabinet4_9', config2);
-    // } else {
-    //     msj3DObj['delSenceObject'](lineName, true);
-    //     msj3DObj['delSenceObject'](name1, true);
-    //     msj3DObj['delSenceObject'](smokeName2, true)
-    // }
-    // msjstation['msmoke'] = !msjstation['msmoke']
+    let sprite1Name = 'sprite1001';
+    let sprite2Name = 'sprite1002';
+    let textName = 'smokingtext';
+    if (!GCONFIG['smoke']) {
+        let sprite1Config = {
+            name: sprite1Name,
+            position: {
+                x: -150,
+                y: 210,
+                z: -280,
+                w: 3
+            },
+            size: {
+                x: 150,
+                y: 300,
+                z: 150
+            },
+            number: 350,
+            color: 0xd71345,
+            imgurl: GCONFIG['pic_path'] + 'smoking.png'
+        };
+        D3DOBJ['addSprite'](sprite1Config);
+        let sprite2Config = {
+            name: sprite2Name,
+            position: {
+                x: 120,
+                y: 210,
+                z: 0,
+                w: 5
+            },
+            size: {
+                x: 150,
+                y: 300,
+                z: 150
+            },
+            number: 350,
+            color: 0xf47920,
+            imgurl: GCONFIG['pic_path'] + 'smoking.png'
+        };
+        D3DOBJ['addSprite'](sprite2Config);
+
+        let text1Config = {
+            name: textName,
+            width:64,
+            height:26,
+            position: {
+                x: 0,
+                y: 30,
+                z: 0
+            },
+            size: {
+                x: 256,
+                y: 128,
+                z: 80
+            },
+            color: {
+                r: 34,
+                g: 76,
+                b: 143,
+                a: 0.8
+            },
+            imgurl: '',
+            fontsize: 14,
+            message: '烟雾报警'
+        };
+        D3DOBJ.makeTextSprite(sprite1Name, text1Config);
+        let text2Config = {
+            name: textName,
+            width:64,
+            height:26,
+            position: {
+                x: 0,
+                y: 30,
+                z: 0
+            },
+            size: {
+                x: 256,
+                y: 128,
+                z: 80
+            },
+            color: {
+                r: 34,
+                g: 76,
+                b: 143,
+                a: 0.8
+            },
+            imgurl: '',
+            fontsize: 14,
+            message: '高温报警'
+        };
+        D3DOBJ.makeTextSprite(sprite2Name, text2Config);
+    } else {
+        D3DOBJ['delObject'](sprite1Name);
+        D3DOBJ['delObject'](sprite2Name);
+        D3DOBJ['delObject'](textName);
+    }
+    GCONFIG['smoke'] = !GCONFIG['smoke']
 };
+D3DLib.prototype.capacity = function() {
+    //遍历每个机柜
+        //获取出当前机柜总容量
+        //已使用U
+        //剩余U
+        //最大连续U数
+        //剩余容量
+}
 //////////////////////////////////////////////////
 D3DLib.prototype.updateControls = function () {
     let width = $(D3DOBJ.fId).width();
@@ -618,13 +657,22 @@ D3DLib.prototype.updateControls = function () {
 };
 // Init Axis Helper
 D3DLib.prototype.initAxisHelper = function(){
-//	this.axisHelper = new THREE.AxisHelper( 2000 );
-//	this.scene.add(this.axisHelper);
+	this.axisHelper = new THREE.AxisHelper( 2000 );
+	this.scene.add(this.axisHelper);
 	let geometry = new THREE.BoxGeometry( 1, 1, 1 );
 	let material = new THREE.MeshBasicMaterial( {color: 0x00ff00} );
 	let cube = new THREE.Mesh( geometry, material );
 	this.scene.add( cube );
 };
+D3DLib.prototype.initStats = function(){
+    D3DOBJ.statUi = new Stats();
+    D3DOBJ.statUi.setMode(0); // 0: fps, 1: ms
+    D3DOBJ.statUi.domElement.style.position = 'absolute';
+    D3DOBJ.statUi.domElement.style.left = '0px';
+    D3DOBJ.statUi.domElement.style.top = '0px';
+
+    document.body.appendChild(D3DOBJ.statUi.domElement);
+}
 D3DLib.prototype.initLight = function() {
     let ambientLight = new THREE.AmbientLight(0xcccccc);
     ambientLight['position']['set'](0, 0, 0);
@@ -654,6 +702,7 @@ D3DLib.prototype.animation = function() {
         TWEEN.update();
     }
 	D3DOBJ.onUpdateScene();
+	D3DOBJ.statUi.update();
 	requestAnimationFrame(D3DOBJ['animation']);
 	//D3DOBJ.controls.update();
 	D3DOBJ.renderer.render(D3DOBJ.scene, D3DOBJ.camera);
@@ -705,7 +754,7 @@ D3DLib.prototype.onUpdateScene = function() {
         pathPoint2['y'] += yStep;
         camera['matrix']['lookAt'](camera['position'], pathPoint2, point2);
         camera['rotation']['setFromRotationMatrix'](camera['matrix'], camera['rotation']['order']);
-        D3DOBJ['dynamicPathTimer'] += 0.00025;
+        D3DOBJ['dynamicPathTimer'] += 0.0005;
         if (D3DOBJ['dynamicPathTimer'] > 1.0) {
             D3DOBJ['dynamicPathTimer'] = 0.0
         }
@@ -886,8 +935,13 @@ D3DLib.prototype.delObject = function(name, parent){
     if(!(parent instanceof THREE.Mesh)){
     	parent = D3DOBJ.scene;
     }
-	let mesh = parent.getObjectByName(name);
-	parent.remove(mesh);
+    let mesh = null;
+    while((mesh = parent.getObjectByName(name)) !== undefined) {
+        parent.remove(mesh);
+    }
+};
+D3DLib.prototype.findObject = function(name){
+    return D3DOBJ.scene.getObjectByName(name);
 };
 D3DLib.prototype.parseLabelData = function(datas){
 	for(let i=0; i<datas.length; ++i){
@@ -953,7 +1007,7 @@ D3DLib.prototype.drawLabel = function(data){
     if(exist(data['texts'])){
     	for (let i = 0; i < data['texts'].length; i++) {
             drawingContext.font = data['texts'][i].font;
-            let textMeasure = drawingContext.measureText(data['texts'][i].text);
+            //let textMeasure = drawingContext.measureText(data['texts'][i].text);
             drawingContext.fillText(data['texts'][i].text, data['texts'][i]['offX'], data['texts'][i]['offY']);
         }
     }
@@ -963,7 +1017,7 @@ D3DLib.prototype.drawLabel = function(data){
     texture.needsUpdate = true;
     material.map = texture;
     //material.opacity=.5;
-    //material.transparent=true;
+    material.transparent=true;
 
     let mesh = new THREE.Mesh(new THREE.BoxGeometry(drawingCanvas.width, drawingCanvas.height, 1), material);
     mesh.name = data['name'];
@@ -1309,6 +1363,7 @@ D3DLib.prototype.createBox = function(mesh){
     let box = new THREE.Mesh(boxGeo, materials);
     box['castShadow'] = true;
     box['receiveShadow'] = true;
+    box['transparent'] = true;
     box['uuid'] = mesh['uuid'];
     box['name'] = mesh['name'];
     box['position']['set'](x, y, z);
@@ -1420,6 +1475,54 @@ D3DLib.prototype.addTunnel = function (config, points) {
 D3DLib.prototype.makeDynamicTextSprite = function(name, config){
 	
 };
+D3DLib.prototype.makeTextSprite = function(name, textConfig){
+    if (textConfig === undefined || textConfig === null) {
+        textConfig = {};
+    }
+
+    let fontface = textConfig['hasOwnProperty']('fontface') ? textConfig['fontface'] : 'Arial';
+    let fontsize = textConfig['hasOwnProperty']('fontsize') ? textConfig['fontsize'] : 18;
+    let borderThickness = textConfig['hasOwnProperty']('borderThickness') ? textConfig['borderThickness'] : 4;
+    let textColor = textConfig['hasOwnProperty']('textColor') ? textConfig['textColor'] : {r: 255,g: 255,b: 255,a: 1.0};
+    let message = textConfig['hasOwnProperty']('message') ? textConfig['message'] : '';
+    let x = textConfig['hasOwnProperty']('position') ? textConfig['position']['x'] : 10;
+    let y = textConfig['hasOwnProperty']('position') ? textConfig['position']['y'] : 80;
+    let z = textConfig['hasOwnProperty']('position') ? textConfig['position']['z'] : 0;
+
+    let canvas = document['createElement']('canvas');
+    let width = textConfig['hasOwnProperty']('width') ? textConfig['width'] : 128;
+    let height = textConfig['hasOwnProperty']('height') ? textConfig['height'] : width / 2;
+    canvas['width'] = width;
+    canvas['height'] = height;
+    let context = canvas['getContext']('2d');
+    //vcanvas = canvas;
+    //vcontext = context;
+    context['fillStyle'] = 'rgb(255,127,39)';
+    context['fillRect'](0, 0, width, height);
+    context['fillStyle'] = 'black';
+    context['textAlign'] = 'center';
+    context['textBaseline'] = 'middle';
+    context['font'] = 'bold ' + fontsize + 'px ' + fontface;
+    context['lineWidth'] = borderThickness;
+    context['fillStyle'] = 'rgba(' + textColor['r'] + ', ' + textColor['g'] + ', ' + textColor['b'] + ', 1.0)';
+    context['fillText'](message, width/2, borderThickness+height/5);
+    // let martrix = context['measureText'](message);
+    // let temWidth = martrix['width'];
+    let texture = new THREE.Texture(canvas);
+    texture['needsUpdate'] = true;
+    let spriteMaterial = new THREE.SpriteMaterial({
+        map: texture,
+        useScreenCoordinates: false
+    });
+    let sprite = new THREE.Sprite(spriteMaterial);
+    let fromObj = D3DOBJ.findObject(name);
+    sprite['position']['x'] = fromObj['position']['x'] + x;
+    sprite['position']['y'] = fromObj['position']['y'] + y;
+    sprite['position']['z'] = fromObj['position']['z'] + z;
+    sprite['name'] = textConfig['name'];
+    sprite['scale']['set'](5 * fontsize, 3.0 * fontsize, 1.0);
+    D3DOBJ['addObject'](sprite)
+};
 D3DLib.prototype.addNurbs = function(nurbsConfig) {
 	let degree1 = 2;
 	let degree2 = 3;
@@ -1509,14 +1612,45 @@ D3DLib.prototype.addPlane = function(planeConfig, sideConfig) {
 	D3DOBJ.addObject(plane, planeConfig['parent']);
 };
 D3DLib.prototype.addSprite = function(config){
-	
+    let scalar = config['position']['w'];
+    let textureLoader = new THREE.TextureLoader()['load'](config['imgurl']);
+    let material = new THREE.SpriteMaterial({
+        map: textureLoader,
+        color: config['color'],
+        blending: THREE['AdditiveBlending']
+    });
+    let obj;
+    for (let i = 0; i < config['number']; i++) {
+        obj = new THREE.Sprite(material);
+        D3DOBJ['initParticle'](config, obj, i * 10, scalar);
+        obj['name'] = config['name'];
+        D3DOBJ['addObject'](obj);
+    }
 };
-D3DLib.prototype.initParticle = function(config, obj, direction, scale){
+D3DLib.prototype.initParticle = function(config, obj, delay, scale){
 	if(obj == null || typeof(obj) === 'undefined'){
 		return;
 	}
-	obj['position']['set'](config['position']['x'], config['position']['y'], config['position']['z']);
+    obj['position']['set'](config['position']['x'], config['position']['y'], config['position']['z']);
     obj['scale']['x'] = obj['scale']['y'] = Math['random']() * scale + scale * 2;
+    let x = config['position']['x'];
+    let positonX = x + config['size']['x'];
+    let y = config['position']['y'];
+    let positionY = y + config['size']['y'];
+    let z = config['position']['z'];
+    let positionZ = z + config['size']['z'];
+    new TWEEN.Tween(obj)['delay'](delay)['to']({}, 1000)['onComplete'](function () {
+        D3DOBJ['initParticle'](config, obj, delay, scale)
+    })['start']();
+    new TWEEN.Tween(obj['position'])['delay'](delay)['to']({
+        x: (Math['random']() * (positonX - x + 1) + x),
+        y: (Math['random']() * (positionY - y + 1) + y),
+        z: (Math['random']() * (positionZ - z + 1) + z)
+    }, 10000)['start']();
+    new TWEEN.Tween(obj['scale'])['delay'](delay)['to']({
+        x: 0.01,
+        y: 0.01
+    }, 10000)['start']()
     
 };
 
