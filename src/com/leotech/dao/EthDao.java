@@ -40,8 +40,8 @@ public class EthDao {
                 devEthCount.clear();
             }
             devEthCount.clear();
-            String sqlFilter = " where eth.device = d.id";
-            String strSql = "select eth.code, eth.peerId, d.ethRowCount, d.ethColCount from device d, eth";
+            String sqlFilter = " where eth.device = device.id and device.typeid = device_type.uuid";
+            String strSql = "select eth.code, eth.peerId, device_type.ethRowCount, device_type.ethColCount from eth, device, device_type";
             strSql += sqlFilter;
             jdbcTemplate.query(strSql, new RowCallbackHandler(){
                 public void processRow(ResultSet result) throws SQLException {

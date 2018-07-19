@@ -887,7 +887,7 @@ D3DLib.prototype.parseDeviceData = function(datas){
         let startU = parseInt(devName.substr(3,2));
         let useU = parseInt(devName.substr(5));
 		data['name'] = 'dev_' + devName;
-        data['parent'] = 'cab-' + cabId;
+        data['parent'] = 'cab_' + cabId;
         data['x'] = 0;
         data['y'] = 5*startU - GCONFIG['cab_inner_height']/2;
         data['z'] = 0;
@@ -919,7 +919,7 @@ D3DLib.prototype.addObject = function(object){
         console.log(object);
         return;
     }
-	if(object.name !== undefined && object.name !== null && object.name.indexOf('cab-') === 0){
+	if(object.name !== undefined && object.name !== null && object.name.indexOf('cab_') === 0){
 	    D3DOBJ.cabList.push(object);
     }
     if ( arguments.length > 1 ) {
@@ -1827,7 +1827,7 @@ D3DLib.prototype.hideCabinet = function(obj) {
 };
 
 //推拉设备
-D3DOBJ.prototype.pullDevice = function(obj){
+D3DLib.prototype.pullDevice = function(obj){
     if(obj.isOpen){
         obj.position.x+=52;
         obj.isOpen=false;
@@ -1835,4 +1835,59 @@ D3DOBJ.prototype.pullDevice = function(obj){
         obj.position.x-=52;
         obj.isOpen=true;
     }
-}
+};
+//开前门
+D3DLib.prototype.openFrontDoor = function(obj){
+    let sign = 1;
+    if(!obj.isOpen){
+        sign = -1;
+        obj.isOpen=true;
+    } else{
+        obj.isOpen=false;
+    }
+    obj.rotation.y += sign*1.57;
+    obj.position.x += sign*35;
+    obj.position.z += sign*33;
+};
+//开后门
+D3DLib.prototype.openBackDoor = function(obj){
+    let sign = 1;
+    if(obj.isOpen){
+        sign = -1;
+        obj.isOpen=false;
+    }else{
+        obj.isOpen=true;
+    }
+
+    obj.rotation.y += sign*1.57;
+    obj.position.x += sign*35;
+    obj.position.z += sign*30;
+};
+//开左门
+D3DLib.prototype.openLeftDoor = function(obj){
+    let sign = 1;
+    if(obj.isOpen){
+        obj.isOpen=false;
+    }else{
+        sign = -1;
+        obj.isOpen=true;
+    }
+
+    obj.rotation.y += sign*1.57;
+    obj.position.x += sign*52;
+    obj.position.z += sign*52;
+};
+//开右门
+D3DLib.prototype.openRightDoor = function(obj){
+    let sign = 1;
+    if(obj.isOpen){
+        sign = -1;
+        obj.isOpen=false;
+    }else{
+        obj.isOpen=true;
+    }
+
+    obj.rotation.y += sign*1.57;
+    obj.position.x += sign*52;
+    obj.position.z -= sign*52;
+};
