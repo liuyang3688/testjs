@@ -2,9 +2,17 @@ let D3DOBJ = null;
 let GCONFIG = {
 	pic_path : '/glserver/static/pic/',
 	bg_img: 'bg.jpg',
+    cab_outer_height:230,
+    side_cab: -440,
+    cab_outer_width: 72,
     cab_inner_height:210,
+    cab_inner_width: 70,
+    cab_inner_length: 70,
+    u_height: 5,
+    u_count: 42,
     roam:false,
     conn:false,
+    cableList:[],
     temp:false,
     air:false,
     smoke:false
@@ -255,7 +263,7 @@ D3DLib.prototype.onDocumentMouseMove = function(event){
 D3DLib.prototype.initMouseCtrl = function () {
     this.controls = new THREE.OrbitControls(this.camera);
     this.controls.maxPolarAngle = Math.PI * 0.48;
-    this.controls.minDistance=200;
+    this.controls.minDistance=100;
     this.controls.maxDistance = 3000;
     this.controls.zoomSpeed = 2;
     this.controls.addEventListener('change', this.updateControls);
@@ -310,201 +318,199 @@ D3DLib.prototype.roam = function(){
     GCONFIG['roam'] = !GCONFIG['roam']
 };
 D3DLib.prototype.connection = function(){
-    let pathName = 'line0001';
-    let spriteConn1Name = 'spriteConn1';
-    let spriteConn2Name = 'spriteConn2';
     if (!GCONFIG['conn']) {
-        let pathConfig = {
-            name: pathName,
-            type: 'beeline',
-            visible: true,
-            //imgurl: GCONFIG['pic_path'] + 'UV_Grid_Sm.jpg',
-            color: 'green',
-            radiu: 0.8,
-            scene: true
-        };
-        let pathPoints = [
-            {x: -150,y: 100,z: 180},
-            {x: -100,y: 100,z: 180},
-            {x: -100,y: 240,z: 180},
-            {x: -130,y: 240,z: 180},
-            {x: -130,y: 240,z: 250},
-            {x: 70,y: 240,z: 250},
-            {x: 70,y: 240,z: 20},
-            {x: 70,y: 210,z: 20},
-            {x: 100,y: 210,z: 20},
-            {x: 100,y: 160,z: 20}];
-        D3DOBJ.addTunnel(pathConfig, pathPoints);
+        $.ajax({
+        url: '/glserver/clone/get_all_eth',
+        dataType: 'json',
+        data: null,
+        success: function (datas) {
+            let fmPt = new THREE.Vector3(0,0,0);
+            let toPt = new THREE.Vector3(0,0,0);
+            for(let i=0; i<datas.length; ++i){
+                let data = datas[i];
+                let fmEthName = data['code'];
+                let toEthName = data['peerCode'];
 
-        let spriteConn1Config = {
-            name: spriteConn1Name,
-            position: {x: -70,y: 260,z: 200},
-            size: {x: 256,y: 128,z: 60},
-            color: {r: 244,g: 120,b: 32,a: 0.4},
-            imgurl: 'res/textmark.jpg',
-            rows: [{
-                name: 'item1',
-                fontface: 'Arial',
-                fontsize: 20,
-                borderThickness: 32,
-                textColor: {
-                    r: 255,
-                    g: 255,
-                    b: 255,
-                    a: 1.0
-                },
-                text: '\u5F53\u524D\u7F51\u7EDC\u6D41\u91CF',
-                size: {
-                    x: 20,
-                    y: 20
-                },
-                position: {
-                    x: 10,
-                    y: 30,
-                    z: 0
+                if (fmEthName.length !== 11 || toEthName.length !== 11){
+                    console.log('fmEthName: ' + fmEthName + ', toEthName:' + toEthName);
+                    continue;
                 }
-            },
-                {
-                    name: 'item2',
-                    fontface: 'Arial',
-                    fontsize: 60,
-                    borderThickness: 14,
-                    textColor: {
-                        r: 255,
-                        g: 255,
-                        b: 255,
-                        a: 1.0
-                    },
-                    text: '170.8',
-                    size: {
-                        x: 20,
-                        y: 20
-                    },
-                    position: {
-                        x: 10,
-                        y: 80,
-                        z: 0
-                    }
-                },
-                {
-                    name: 'item3',
-                    fontface: 'Arial',
-                    fontsize: 24,
-                    borderThickness: 14,
-                    textColor: {
-                        r: 255,
-                        g: 255,
-                        b: 255,
-                        a: 1.0
-                    },
-                    text: 'Mb/s',
-                    size: {
-                        x: 20,
-                        y: 20
-                    },
-                    position: {
-                        x: 190,
-                        y: 90,
-                        z: 0
-                    }
-                }]
-        };
-        let spriteConn2Config = {
-            name: spriteConn2Name,
-            position: {
-                x: 110,
-                y: 260,
-                z: 20
-            },
-            size: {
-                x: 256,
-                y: 128,
-                z: 80
-            },
-            color: {
-                r: 34,
-                g: 76,
-                b: 143,
-                a: 0.8
-            },
-            imgurl: '',
-            rows: [{
-                name: 'item1',
-                fontface: 'Arial',
-                fontsize: 20,
-                borderThickness: 32,
-                textColor: {
-                    r: 255,
-                    g: 255,
-                    b: 255,
-                    a: 1.0
-                },
-                text: '\u5F53\u524D\u4E0A\u884C\u5E26\u5BBD',
-                size: {
-                    x: 20,
-                    y: 20
-                },
-                position: {
-                    x: 10,
-                    y: 30,
-                    z: 0
+                let connName = null;
+                if(fmEthName < toEthName){
+                    connName = 'cable_' + fmEthName + '_' + toEthName;
+                } else {
+                    connName = 'cable_' + toEthName + '_' + fmEthName;
                 }
-            },
-                {
-                    name: 'item2',
-                    fontface: 'Arial',
-                    fontsize: 60,
-                    borderThickness: 14,
-                    textColor: {
-                        r: 255,
-                        g: 255,
-                        b: 255,
-                        a: 1.0
-                    },
-                    text: '345.8',
-                    size: {
-                        x: 20,
-                        y: 20
-                    },
-                    position: {
-                        x: 10,
-                        y: 80,
-                        z: 0
-                    }
-                },
-                {
-                    name: 'item3',
-                    fontface: 'Arial',
-                    fontsize: 24,
-                    borderThickness: 14,
-                    textColor: {
-                        r: 255,
-                        g: 255,
-                        b: 255,
-                        a: 1.0
-                    },
-                    text: 'Mb/s',
-                    size: {
-                        x: 20,
-                        y: 20
-                    },
-                    position: {
-                        x: 190,
-                        y: 90,
-                        z: 0
-                    }
-                }]
-        };
-        
-        D3DOBJ.makeDynamicTextSprite('equipment_card_52', spriteConn1Config);
-        D3DOBJ.makeDynamicTextSprite('equipment_card_23', spriteConn2Config);
+                if(D3DOBJ.hasObject(connName)){
+                    continue;
+                }
+
+                // 解析源点
+                let fmEthRowCount = data['fmEthRowCount'] || 1;
+                let fmEthColCount = data['fmEthColCount'] || 10;
+                let fmCabRow = fmEthName.substr(1,1);
+                let fmCabId = fmEthName.substr(1,2);
+                let fmStartU = parseInt(fmEthName.substr(3,2));
+                let fmUsedU  = parseInt(fmEthName.substr(5,2));
+                let fmEthRow = parseInt(fmEthName.substr(7,2));;
+                let fmEthCol = parseInt(fmEthName.substr(9,2));;
+                let fmCabName = 'cab_' + fmCabId;
+                let fmCabMesh = D3DOBJ.scene.getObjectByName(fmCabName);
+                if(fmCabMesh === null || fmCabMesh.hasOwnProperty('position')===false){
+                    continue;
+                }
+                // cab位置
+                fmPt.x = fmCabMesh.position.x;
+                fmPt.y = fmCabMesh.position.y;
+                fmPt.z = fmCabMesh.position.z;
+                // x轴移至后门处
+                fmPt.x += GCONFIG['cab_inner_length']/2;
+                // y轴坐标
+                let fmRowLen = fmUsedU * 1.0 /(fmEthRowCount+1);
+                fmPt.y += GCONFIG['u_height'] * (fmStartU +  fmEthRow*fmRowLen) - GCONFIG['cab_inner_height']/2;
+                // z轴坐标
+                let fmColLen =  GCONFIG['cab_inner_width'] * 1.0 / (fmEthColCount+1);
+                let fmZSpan = fmColLen * fmEthCol;
+                fmPt.z +=  fmZSpan - GCONFIG['cab_inner_width'] / 2 ;
+
+                // 解析目的点
+                let toEthRowCount = data['toEthRowCount'] || 1;
+                let toEthColCount = data['toEthColCount'] || 10;
+                let toCabRow = toEthName.substr(1,1);
+                let toCabId = toEthName.substr(1,2);
+                let toStartU = parseInt(toEthName.substr(3,2));
+                let toUsedU  = parseInt(toEthName.substr(5,2));
+                let toEthRow = parseInt(toEthName.substr(7,2));;
+                let toEthCol = parseInt(toEthName.substr(9,2));;
+                let toCabName = 'cab_' + toCabId;
+                let toCabMesh = D3DOBJ.scene.getObjectByName(toCabName);
+                if(toCabMesh === null || toCabMesh.hasOwnProperty('position')===false){
+                    continue;
+                }
+                // cab位置
+                toPt.x = toCabMesh.position.x;
+                toPt.y = toCabMesh.position.y;
+                toPt.z = toCabMesh.position.z;
+                // x轴移至后门处
+                toPt.x += GCONFIG['cab_inner_length']/2;
+                // y轴坐标
+                let toRowLen = toUsedU * 1.0 /(toEthRowCount+1);
+                toPt.y += GCONFIG['u_height'] * (toStartU +  toEthRow*toRowLen) - GCONFIG['cab_inner_height']/2;
+                // z轴坐标
+                let toColLen =  GCONFIG['cab_inner_width'] * 1.0 / (toEthColCount+1);
+                let toZSpan = toColLen * toEthCol;
+                toPt.z += toZSpan - GCONFIG['cab_inner_width'] / 2 ;
+
+                // 根据fmPt和toPt确定路线点
+                // connType 1：不同行 2：同行不同柜 3：同柜不同设备 4：同一设备
+                let connType = 1;
+                if(fmCabRow !== toCabRow) {
+                    connType = 1;
+                } else if (fmCabId !== toCabId){
+                    connType = 2;
+                } else if (fmStartU !== toStartU) {
+                    connType = 3;
+                } else{
+                    connType = 4;
+                }
+                let params = {
+                    'fmZSpan': fmZSpan,
+                    'toZSpan': toZSpan,
+                    'fmEthRow': fmEthRow,
+                    'fmEthCol': fmEthCol,
+                    'toEthRow': toEthRow,
+                    'toEthCol': toEthCol,
+                }
+                D3DOBJ.createPath(connName, connType, fmPt, toPt, params);
+            }
+        },
+        error: function (data) {
+            console.log("update eth from db  error")
+        },
+    });
     } else {
-        D3DOBJ.delObject(pathName);
-        D3DOBJ.delObject(spriteConn1Name);
-        D3DOBJ.delObject(spriteConn2Name);
+        for (let i=0; i<GCONFIG['cableList'].length; ++i){
+            let pathName = GCONFIG['cableList'][i];
+            D3DOBJ.delObject(pathName);
+        }
+        //D3DOBJ.delObject(pathName);
     };
     GCONFIG['conn'] = !GCONFIG['conn']
 };
+var colorArr = [ 'red', 'green', 'blue', 'yellow', 'pruple' ];
+D3DLib.prototype.createPath = function(pathName,pathType, fmPt, toPt, params) {
+    let r=Math.floor(Math.random()*256);
+    let g=Math.floor(Math.random()*256);
+    let b=Math.floor(Math.random()*256);
+    let pathConfig = {
+        name: pathName,
+        type: 'beeline',
+        visible: true,
+        color: colorArr[(params['fmEthRow'] + params['fmEthCol']-2)%5],
+        radiu: 0.2,
+        scene: true
+    };
+    let pathPointArr = [];
+    pathPointArr.push(fmPt.clone());
+
+    let fmRowSpan = (params['fmEthRow']-1)*2;
+    let fmColSpan = params['fmEthCol'];
+    let toRowSpan = (params['toEthRow']-1)*2;
+    let toColSpan = params['toEthCol'];
+    fmPt.x = fmPt.x + 20 + fmColSpan;
+    params['fmZSpan'] -= fmRowSpan;
+    pathPointArr.push(fmPt.clone());
+    switch(pathType){
+        case 1://不同行
+            fmPt.z -= params['fmZSpan'];
+            pathPointArr.push(fmPt.clone());
+            fmPt.y = GCONFIG['cab_outer_height'] + fmRowSpan;
+            pathPointArr.push(fmPt.clone());
+            fmPt.z = GCONFIG['side_cab'] + fmColSpan;
+            pathPointArr.push(fmPt.clone());
+            fmPt.x = toPt.x + 20 - toColSpan;
+            pathPointArr.push(fmPt.clone());
+            fmPt.z = toPt.z - params['toZSpan'] + toRowSpan;
+            pathPointArr.push(fmPt.clone());
+            fmPt.y = toPt.y;
+            pathPointArr.push(fmPt.clone());
+            fmPt.z = toPt.z;
+            pathPointArr.push(fmPt.clone());
+            break;
+        case 2://同行不同柜
+            fmPt.z -= params['fmZSpan'];
+            pathPointArr.push(fmPt.clone());
+            fmPt.y = GCONFIG['cab_outer_height'] + fmRowSpan;
+            pathPointArr.push(fmPt.clone());
+            fmPt.z = toPt.z - params['toZSpan'] - toRowSpan;
+            pathPointArr.push(fmPt.clone());
+            fmPt.y = toPt.y;
+            pathPointArr.push(fmPt.clone());
+            fmPt.z = toPt.z;
+            pathPointArr.push(fmPt.clone());
+            break;
+        case 3://同柜不同设备
+            fmPt.z -= params['fmZSpan'];
+            pathPointArr.push(fmPt.clone());
+            fmPt.y = toPt.y;
+            pathPointArr.push(fmPt.clone());
+            fmPt.z = toPt.z;
+            pathPointArr.push(fmPt.clone());
+            break;
+        case 4://相同设备
+            fmPt.y = toPt.y;
+            pathPointArr.push(fmPt.clone());
+            fmPt.z = toPt.z;
+            pathPointArr.push(fmPt.clone());
+
+            break;
+    }
+    pathPointArr.push(toPt);
+    let mesh = D3DOBJ.addTunnel(pathConfig, pathPointArr);
+    if(mesh !== undefined && mesh !== null){
+        GCONFIG['cableList'].push(pathName);
+    }
+}
 D3DLib.prototype.temp = function(){
 	let objName = 'temp2001';
     if (!GCONFIG['temp']) {
@@ -942,6 +948,31 @@ D3DLib.prototype.delObject = function(name, parent){
         parent.remove(mesh);
     }
 };
+D3DLib.prototype.hasObject = function(name, parent){
+    if (name === undefined || name === null) {
+        return;
+    }
+    if(!(parent instanceof THREE.Mesh)){
+        parent = D3DOBJ.scene;
+    }
+    let ret = false;
+    if(parent.getObjectByName(name) !== undefined) {
+        ret = true;
+    }
+    return ret;
+};
+D3DLib.prototype.hideObject = function(name, parent){
+    if (name === undefined || name === null) {
+        return;
+    }
+    if(!(parent instanceof THREE.Mesh)){
+        parent = D3DOBJ.scene;
+    }
+    let mesh = null;
+    if((mesh = parent.getObjectByName(name)) !== undefined) {
+        mesh.visible = !mesh.visible;
+    }
+};
 D3DLib.prototype.findObject = function(name){
     return D3DOBJ.scene.getObjectByName(name);
 };
@@ -1090,7 +1121,7 @@ D3DLib.prototype.cloneObj = function(cloneData){
     cloneObj['uuid'] = cloneData['uuid'];
     if (cloneObj['children'] != null && cloneObj['children']['length'] > 1) {
         $['each'](cloneObj['children'], function (i, child) {
-            child['name'] = cloneData['name'] + '-' + child['name'];
+            child['name'] = cloneData['name'] + '_' + child['name'];
         });
     }
     cloneObj['position']['x'] = cloneData['x'] || 0;
@@ -1555,7 +1586,6 @@ D3DLib.prototype.addTunnel = function (config, points) {
             let per = 1 / nPoint;
             let vindex = parseInt( pointIndex / per);
             if (1 === pointIndex) {
-                console['log'](pointIndex + '/' + per + ' = ' + vindex + ' ');
                 return pointsArr[vindex]['clone']()
             };
             let nVertor3 = new THREE.Vector3();
@@ -1771,4 +1801,38 @@ D3DLib.prototype.initParticle = function(config, obj, delay, scale){
     }, 10000)['start']()
     
 };
+////////////////////////////////////////////////////////Event
+//隐藏网线
+D3DLib.prototype.hidePath = function(obj) {
+    for(let i=0; i<GCONFIG['cableList'].length; ++i) {
+        if(GCONFIG['cableList'][i] !== obj['name'] ){
+            D3DOBJ.hideObject(GCONFIG['cableList'][i]);
+        }
+    }
+};
 
+//隐藏柜子
+D3DLib.prototype.hideCabinet = function(obj) {
+    if(obj.isShowCabinet){
+        obj.isShowCabinet=false;
+    } else {
+        obj.isShowCabinet=true;
+    }
+    for(var i=0; i<D3DOBJ.cabList.length; ++i){
+        let cab = D3DOBJ.cabList[i];
+        if(cab.name != obj.parent.name) {
+            cab.visible = !obj.isShowCabinet;
+        }
+    }
+};
+
+//推拉设备
+D3DOBJ.prototype.pullDevice = function(obj){
+    if(obj.isOpen){
+        obj.position.x+=52;
+        obj.isOpen=false;
+    }else{
+        obj.position.x-=52;
+        obj.isOpen=true;
+    }
+}

@@ -6,6 +6,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.JSONArray;
 import com.leotech.dao.CloneDao;
 import com.leotech.dao.DeviceDao;
+import com.leotech.dao.EthDao;
 
 public class CloneService {
 	public static List<JSONObject> getAllClone() {
@@ -14,6 +15,7 @@ public class CloneService {
 	public static JSONArray getAllDevice() {
 		return DeviceDao.instance().getAllDevice();
 	}
+	public static JSONArray getAllEth() { return EthDao.instance().getAllEth();}
 	public static Boolean updateIsDirty(int uuid){
 		Boolean isDirty = false;
 		return CloneService.updateIsDirty(uuid, isDirty);
