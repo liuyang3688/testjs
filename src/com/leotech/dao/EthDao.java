@@ -81,6 +81,9 @@ public class EthDao {
                 eth.put("peerCode", info.peerId);
                 eth.put("fmEthRowCount", info.ethRowCount);
                 eth.put("fmEthColCount", info.ethColCount);
+                if (info.peerId == null || !devEthCount.containsKey(info.peerId)){
+                    continue;
+                }
                 eth.put("toEthRowCount", devEthCount.get(info.peerId).ethRowCount);
                 eth.put("toEthColCount", devEthCount.get(info.peerId).ethColCount);
                 eths.add(eth);
@@ -90,6 +93,33 @@ public class EthDao {
             e.printStackTrace();
         }
         return eths;
+    }
+    public JSONObject getCableInfo(String fmEthCode, String toEthCode) {
+        final JSONObject obj = new JSONObject();
+        try {
+            String sqlFilter = " where eth.device = device.id and eth.code='" + fmEthCode+"'";
+            String strSql = "select eth.name, device.name  from eth,device";
+            strSql += sqlFilter;
+            jdbcTemplate.query(strSql, new RowCallbackHandler(){
+                public void processRow(ResultSet result) throws SQLException {
+                obj.put("fmDeviceName", result.getString("device.name"));
+                obj.put("fmEthName", result.getString("eth.name"));
+                }
+            });
+
+            sqlFilter = " where eth.device = device.id and eth.code='" + toEthCode +"'";
+            strSql = "select eth.name, device.name  from eth,device";
+            strSql += sqlFilter;
+            jdbcTemplate.query(strSql, new RowCallbackHandler(){
+                public void processRow(ResultSet result) throws SQLException {
+                    obj.put("toDeviceName", result.getString("device.name"));
+                    obj.put("toEthName", result.getString("eth.name"));
+                }
+            });
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return obj;
     }
     class EthInfo {
         public String   code;

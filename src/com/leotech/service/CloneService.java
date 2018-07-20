@@ -15,7 +15,6 @@ public class CloneService {
 	public static JSONArray getAllDevice() {
 		return DeviceDao.instance().getAllDevice();
 	}
-	public static JSONArray getAllEth() { return EthDao.instance().getAllEth();}
 	public static Boolean updateIsDirty(int uuid){
 		Boolean isDirty = false;
 		return CloneService.updateIsDirty(uuid, isDirty);

@@ -25,6 +25,53 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
         body {
             font: 14px/180% Arial, Helvetica, sans-serif, "新宋体";
         }
+        #title{
+            height: 19px;
+            border-top: #85ABE4 1px solid;
+            border-right: #222 1px solid;
+            border-left: #85ABE4 1px solid;
+            border-bottom: none;
+            background: #5B8BD9;
+            color:#FFFFFF;
+            text-align: center;
+            font-size:14px
+        }
+        #contents{
+            border: #85ABE4 1px solid;
+            border-top: none;
+            padding: 5px;
+            float:left;
+        }
+        #contents{
+            background: url(/glserver/static/pic/sh.jpg) no-repeat;
+        }
+        #img{
+            /*background: url(/glserver/static/pic/s.jpg) no-repeat;*/
+            float: right;
+            width: 49px;
+            height: 19px;
+            line-height: 19px;
+        }
+        #img:hover{
+            /*background: url(/glserver/static/pic/sh.jpg) no-repeat;*/
+            background-color: #0000ff;
+            cursor: pointer;
+        }
+        #ten{float: left;width: 200px;}
+        .none{display: none;}
+        .show{display: block;}
+        #contents .key{
+            width:80px;
+            text-align:right;
+            float:left;
+            color:#0000ff;
+        }
+        #contents .value{
+            width:120px;
+            text-align:left;
+            float:right;
+            padding-left:10px;
+        }
     </style>
 
     <script type="text/javascript" src="/glserver/static/js/jquery-1.3.2.js"></script>
@@ -55,5 +102,19 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 </head>
 <body>
 <div id="canvas-frame"></div>
+    <%--<div id="title" onclick="closeDiv('main')">设备实时数据--%>
+    <%--<div id="ten" onclick="closeDiv('main')"></div>--%>
+    <%--<div id="img" title="关闭" onclick="closeDiv('main')" ></div>--%>
+    <%--</div>--%>
+    <%--<div id="content" style="">--%>
+    <%--<div style="float:center">网线名称：<input type="text" id="item1" value="allen" /></div>--%>
+    <%--<div style="float:center">起始网口：<input type="text" id="item1" name="fname" value="allen" /></div>--%>
+    <%--<div style="float:center">终止端口：<input type="text" id="item1" name="fname" value="allen" /></div>--%>
+    <%--<div style="float:center">所属设备：<input type="text" id="item1" name="fname" value="allen" /></div>--%>
+    <%--</div>--%>
+    <%--<div class="qrcode" style="">--%>
+    <%--<img src="res/qrcode.png" style="width: 100px;"/>--%>
+    <%--</div>--%>
+
 </body>
 </html>
