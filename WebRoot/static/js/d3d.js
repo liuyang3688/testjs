@@ -1,4 +1,19 @@
 let D3DOBJ = null;
+var colorArr = [ 'red', 'green', 'blue', 'yellow', 'pruple' ];
+function getColorByRatio(ratio){
+    // 绿 蓝 黄 红
+    let color = 'grey';
+    if (ratio<25) {
+        color = colorArr[1];
+    } else if (ratio < 50) {
+        color = colorArr[2];
+    } else if (ratio < 75) {
+        color = colorArr[3];
+    } else{
+        color = colorArr[0];
+    }
+    return color;
+}
 let GCONFIG = {
 	pic_path : '/glserver/static/pic/',
 	bg_img: 'bg.jpg',
@@ -15,7 +30,8 @@ let GCONFIG = {
     cableList:[],
     temp:false,
     air:false,
-    smoke:false
+    smoke:false,
+    cab_usage:false,
 };
 function D3DLib(fId, clearColor)
 {
@@ -25,6 +41,9 @@ function D3DLib(fId, clearColor)
 	this.height = window.innerHeight;
 	this.objects = [];
 	this.cabList = [];
+	this.cabInfoMap = new Map();
+	this.cabInfoSpriteList = [];
+	this.LAST_MESH = null;
 	this.tplList = new Map();
 	this.events = null;
 	this.buttons = null;
@@ -51,58 +70,13 @@ D3DLib.prototype.start = function()
 };
 D3DLib.prototype.reset = function(){
     D3DOBJ.cabList = [];
+    D3DOBJ.cabInfoSpriteList = [];
+    D3DOBJ.cabInfoMap.clear();
+    D3DOBJ.tplList.clear();
     D3DOBJ.scene.children = [];
     D3DOBJ.initLight();
     D3DOBJ.initBgImg();
-//    var promise_update_mesh_isdirty = new Promise(function(resolve, reject) {
-//        $.ajax({
-//            type:'post',
-//            url:'/glserver/mesh/update_isdirty',
-//            dataType:'json',
-//            data: null,
-//            success:function(data){
-//                resolve();
-//            },
-//            error: function(data) {
-//                console.log("update mesh isdirty all error");
-//            }
-//        });
-//    });
-//    var promise_update_clone_isdirty = new Promise(function(resolve, reject) {
-//        $.ajax({
-//            type:'post',
-//            url:'/glserver/clone/update_isdirty',
-//            dataType:'json',
-//            data: null,
-//            success:function(data){
-//                resolve();
-//            },
-//            error: function(data) {
-//                console.log("update clone isdirty all error");
-//            }
-//        });
-//    });
-//    var promise_update_label_isdirty = new Promise(function(resolve, reject) {
-//        $.ajax({
-//            type:'post',
-//            url:'/glserver/label/update_isdirty',
-//            dataType:'json',
-//            data: null,
-//            success:function(data){
-//                resolve();
-//            },
-//            error: function(data) {
-//                console.log("update label isdirty all error");
-//            }
-//        });
-//    });
-//    promise_update_mesh_isdirty.then(function(){
-//        return promise_update_clone_isdirty;
-//    }).then(function(){
-//        return promise_update_label_isdirty;
-//    }).then(function(){
-//        D3DOBJ.updateFromDB();
-//    });
+    this.updateFromDB();
 };
 //Load Event From DB
 D3DLib.prototype.loadEvtFromDB = function () {
@@ -200,6 +174,9 @@ D3DLib.prototype.onDocumentMouseDown = function(event){
 	if(D3DOBJ.controls.autoRotate === true){
 		D3DOBJ.controls.autoRotate = false;
 	}
+    // if(GCONFIG['roam']) {
+	 //    D3DOBJ.roam();
+    // }
 	
 	D3DOBJ['mousePos']['x'] = event['clientX'];
     D3DOBJ['mousePos']['y'] = event['clientY'];
@@ -254,6 +231,21 @@ D3DLib.prototype.onEventDeal = function(evtname, event){
                 }
             })
 		}
+
+		// 处理网线选中颜色
+        if (evtname === 'click' || evtname ==='rclick') {
+            // let SEL_MESH = D3DOBJ['SELECTED'];
+            // if(SEL_MESH !== D3DOBJ.lastSelCable) {
+            //
+            // } else {
+            //
+            // }
+            // if (SEL_MESH.hasOwnProperty('name') && SEL_MESH['name'].indexOf('cable_') === 0) {
+            //     // 如果当前网线不是上次网线，那么更新上次网线 且上次网线颜色回复
+            // } else {
+            //
+            // }
+        }
 		
 	    D3DOBJ['controls']['enabled'] = true;
 	}
@@ -270,28 +262,47 @@ D3DLib.prototype.onDocumentMouseMove = function(event){
         //console.log('pos2 1event:'+evtname);
         //D3DOBJ['controls']['enabled'] = false;
         D3DOBJ['SELECTED'] = intersectObjects[0]['object'];
-        if (D3DOBJ['SELECTED'] instanceof THREE.Mesh &&
-            D3DOBJ['SELECTED'].hasOwnProperty('name') &&
-            D3DOBJ['SELECTED']['name'] !== '' &&
-            D3DOBJ['SELECTED']['name'].indexOf('cable_') !== 0 &&
-            D3DOBJ['SELECTED']['name'].indexOf('cab_') !== 0
-        ){// 当前鼠标位置物体为mesh
-            let bNeedCreate = true;
-            if (D3DOBJ['boxHelper'] !==null &&
-                D3DOBJ['boxHelper'] !== undefined &&
-                D3DOBJ['boxHelper'].hasOwnProperty('object')) {//boxHelper已存在
-                if (D3DOBJ['boxHelper']['object'] !== D3DOBJ['SELECTED']) {//boxHelper辅助对象已变更
-                    D3DOBJ.rmObject(D3DOBJ['boxHelper']);
+        let SEL_MESH = D3DOBJ['SELECTED'];
+        if (SEL_MESH instanceof THREE.Mesh &&
+            SEL_MESH.hasOwnProperty('name') &&
+            SEL_MESH['name'] !== '' ){
+            // 当前物体非网线和机柜
+            if (SEL_MESH['name'].indexOf('cable_') !== 0 &&
+                SEL_MESH['name'].indexOf('cab_') !== 0) {
+                let bNeedCreate = true;
+                if (D3DOBJ['boxHelper'] !== null &&
+                    D3DOBJ['boxHelper'] !== undefined &&
+                    D3DOBJ['boxHelper'].hasOwnProperty('object')) {//boxHelper已存在
+                    if (D3DOBJ['boxHelper']['object'] !== D3DOBJ['SELECTED']) {//boxHelper辅助对象已变更
+                        D3DOBJ.rmObject(D3DOBJ['boxHelper']);
+                    }
+                    else {
+                        bNeedCreate = false;
+                    }
                 }
-                else {
-                    bNeedCreate = false;
+
+                if (bNeedCreate) {//boxHelper不存在
+                    let boxHelper = new THREE.BoxHelper(D3DOBJ['SELECTED'], 0xffff00);
+                    D3DOBJ['boxHelper'] = boxHelper;
+                    D3DOBJ.addObject(boxHelper);
                 }
             }
 
-            if(bNeedCreate){//boxHelper不存在
-                let boxHelper = new THREE.BoxHelper( D3DOBJ['SELECTED'], 0xffff00 );
-                D3DOBJ['boxHelper'] = boxHelper;
-                D3DOBJ.addObject(boxHelper);
+            // 上次是mesh 这次是mesh
+            // 上次是mesh 这次是cable
+            // 上次是cable 这次是mesh
+            // 上次是cable 这次是cable
+
+            if(SEL_MESH !== D3DOBJ.LAST_MESH){
+                // 如果上次选中的是网线
+                let LAST_MESH = D3DOBJ.LAST_MESH;
+                if (LAST_MESH !== null && LAST_MESH.hasOwnProperty('name') && LAST_MESH['name'].indexOf('cable_')===0) {
+                    [LAST_MESH['material']['color'], LAST_MESH['userData']['color']] = [LAST_MESH['userData']['color'],LAST_MESH['material']['color']];
+                }
+                if (SEL_MESH !== null && SEL_MESH.hasOwnProperty('name') && SEL_MESH['name'].indexOf('cable_')===0) {
+                    [SEL_MESH['material']['color'], SEL_MESH['userData']['color']] = [SEL_MESH['userData']['color'],SEL_MESH['material']['color']];
+                }
+                D3DOBJ.LAST_MESH = SEL_MESH;
             }
         }
         
@@ -326,30 +337,12 @@ D3DLib.prototype.roam = function(){
             imgurl: GCONFIG['pic_path'] + 'roughness_map.jpg',
             scene: true
         };
-        let pointArr = [{
-            x: -550,
-            y: 120,
-            z: -480
-        },
-        {
-            x: -550,
-            y: 120,
-            z: 310
-        },
-        {
-            x: 220,
-            y: 120,
-            z: 310
-        },
-        {
-            x: 220,
-            y: 120,
-            z: -480
-        }, {
-            x: -550,
-            y: 120,
-            z: -480
-        }];
+        let pointArr = [
+            {x: -550, y: 120, z: -480},
+            {x: -550, y: 120, z: 310},
+            {x: 220, y: 120, z: 310},
+            {x: 220,y: 120,z: -480},
+            {x: -550,y: 120,z: -480}];
         D3DOBJ['dynamicPath'](pathConfig, pointArr)
     } else {
         D3DOBJ['stopDynamicPath'](pathName)
@@ -490,7 +483,7 @@ D3DLib.prototype.connection = function(){
     };
     GCONFIG['conn'] = !GCONFIG['conn']
 };
-var colorArr = [ 'red', 'green', 'blue', 'yellow', 'pruple' ];
+
 D3DLib.prototype.createPath = function(pathName,pathType, fmPt, toPt, params) {
     let r=Math.floor(Math.random()*256);
     let g=Math.floor(Math.random()*256);
@@ -560,6 +553,7 @@ D3DLib.prototype.createPath = function(pathName,pathType, fmPt, toPt, params) {
     }
     pathPointArr.push(toPt);
     let mesh = D3DOBJ.addTunnel(pathConfig, pathPointArr);
+    mesh['userData']['color'] = new THREE.Color(1,1,1);
     if(mesh !== undefined && mesh !== null){
         GCONFIG['cableList'].push(pathName);
     }
@@ -612,7 +606,7 @@ D3DLib.prototype.smoke = function(){
             name: sprite1Name,
             position: {
                 x: -150,
-                y: 210,
+                y: 230,
                 z: -280,
                 w: 3
             },
@@ -630,7 +624,7 @@ D3DLib.prototype.smoke = function(){
             name: sprite2Name,
             position: {
                 x: 120,
-                y: 210,
+                y: 230,
                 z: 0,
                 w: 5
             },
@@ -692,14 +686,149 @@ D3DLib.prototype.smoke = function(){
     }
     GCONFIG['smoke'] = !GCONFIG['smoke']
 };
-D3DLib.prototype.usage = function() {
+D3DLib.prototype.cab_usage = function() {
+    if (!GCONFIG['cab_usage']){
+        if (D3DOBJ.cabInfoMap.size === 0) {
+            D3DOBJ.calcCabInfo();
+        }
+        // 遍历每个机柜
+        // 根据cabInfo生成Sprite
+        for(let i=0; i<D3DOBJ.cabList.length; ++i) {
+            let cab = D3DOBJ.cabList[i];
+            let pos = cab.position;
+            if (!D3DOBJ.cabInfoMap.has(cab['userData']['refCode'])){
+                continue;
+            }
+            let cabInfo = D3DOBJ.cabInfoMap.get(cab['userData']['refCode']);
+            let config = {};
+            config['name'] = 'sprite_'+cab['name'];
+            config['font'] = '18px FangSong';
+            config['background'] = getColorByRatio(cabInfo['usageRatio']);
+            config['textColor'] = 'white';
+            config['width'] = 240;
+            config['height'] = 280;
+            config['x'] = cab['position']['x'];
+            config['y'] = GCONFIG['cab_inner_height'] + config['height'] / 8;
+            config['z'] = cab['position']['z'];
+            let msgArr = [];
+            msgArr.push('机柜名:'+cab['name'].substr(4,2));
+            msgArr.push('所属分区:'+ cabInfo['areaName']);
+            msgArr.push('所属系统:'+ cabInfo['systemName']);
+            msgArr.push('总U数:'+ cabInfo['totalU']);
+            msgArr.push('已用U数:'+cabInfo['usedU']);
+            msgArr.push('剩余U数:'+cabInfo['remainU']);
+            msgArr.push('总容量:'+cabInfo['totalCap']);
+            msgArr.push('已用容量:'+cabInfo['usedCap']);
+            msgArr.push('剩余容量:'+cabInfo['remainCap']);
+            msgArr.push('使用率:'+cabInfo['usageRatio']+"%");
+            config['msgArr'] = msgArr;
+            let sprite = D3DOBJ.makeTextSpriteEx(config);
+            sprite['userData']['refCode'] = cab['userData']['refCode'];
+            D3DOBJ.cabInfoSpriteList.push(sprite);
+        }
+    } else {
+        for (let i=0; i<D3DOBJ['cabInfoSpriteList'].length; ++i){
+            let sprite = D3DOBJ['cabInfoSpriteList'][i];
+            D3DOBJ.rmObject(sprite);
+        }
+        D3DOBJ['cabInfoSpriteList']=[];
+    }
+    GCONFIG['cab_usage'] = !GCONFIG['cab_usage'];
+};
+D3DLib.prototype.calcCabInfo = function() {
+    // function parseCabData(data) {
+    //使用data生成Map
     //遍历每个机柜
+    for(let i=0; i<D3DOBJ.cabList.length; ++i) {
         //获取出当前机柜总容量
-        //已使用U
-        //剩余U
-        //最大连续U数
-        //剩余容量
-}
+        let cab = D3DOBJ.cabList[i];
+        let cabInfo = {};
+        cabInfo['totalCap'] = 2000;
+        cabInfo['usedCap'] = 0;
+        cabInfo['remainCap'] = 2000;
+        cabInfo['totalU'] = 42;
+        cabInfo['usedU'] = 0;
+        cabInfo['remainU'] = 42;
+        cabInfo['refCode'] = cab['userData']['refCode'];
+        let used_u_count = 0;
+        let used_cap_count = 0;
+        let arrTmp = [];
+        for (let j=0; j<cab.children.length; ++j) {
+            let dev = cab.children[j];
+
+            if (dev['name'].indexOf('dev_') === 0) {
+                //截取编码
+                let code = dev['name'].substr(4);
+                let usedU = parseInt(code.substr(5,2));
+                cabInfo['usedU'] += usedU;
+                let devCap = 200;
+                if(dev.hasOwnProperty('userData') && dev['userData'].hasOwnProperty('capacity')){
+                    devCap = dev['userData']['capacity'];
+                }
+                cabInfo['usedCap'] += devCap;
+                arrTmp.push(code);
+            }
+        }
+        let max_cons_u = 0;
+        if (arrTmp.length>0) {
+            arrTmp.sort();
+            // 筛选出最大连续U
+            for(let k=0; k<arrTmp.length; ++k) {
+                let last = "0100";
+                if (k!==0) {
+                    last = arrTmp[k-1].substr(3);
+                }
+                let curr = arrTmp[k].substr(3);
+                let lastStartU = parseInt(last.substr(0,2));
+                let lastUsedU = parseInt(last.substr(2,2));
+                let currStartU = parseInt(curr.substr(0,2));
+                if (lastStartU + lastUsedU > currStartU) {
+                    console.log("lastStartU + lastUsedU >= currStartU error currDev:"+arrTmp[k]);
+                } else {
+                    let spanU = currStartU - (lastStartU + lastUsedU);
+                    if(spanU > max_cons_u) {
+                        max_cons_u = spanU;
+                    }
+                }
+            }
+        } else {
+            max_cons_u = 42;
+        }
+        cabInfo['maxConsU'] = max_cons_u;
+        cabInfo['remainCap'] = cabInfo['totalCap'] - cabInfo['usedCap'];
+        cabInfo['remainU'] = cabInfo['totalU'] - cabInfo['usedU'];
+        cabInfo['usageRatio'] = Math.round(cabInfo['usedU'] * 100.0 / cabInfo['totalU']);
+        cabInfo['areaId'] = 0;
+        cabInfo['systemId'] = 0;
+        cabInfo['areaName'] = '所属分区未分配';
+        cabInfo['systemName'] = '所属系统未分配';
+        D3DOBJ.cabInfoMap.set(cab['userData']['refCode'], cabInfo);
+    }
+    // }
+    let cabAffiMap = new Map();
+    //获取机柜的信息
+    $.ajax({
+        url: '/glserver/clone/get_all_cab',
+        dataType: 'json',
+        data: null,
+        async: false,
+        success: function (datas) {
+            for(let i=0; i<datas.length; ++i) {
+                let data = datas[i];
+                if (D3DOBJ.cabInfoMap.has(data['code'])) {
+                    let cabInfo = D3DOBJ.cabInfoMap.get(data['code']);
+                    cabInfo['areaId'] = data['areaId'];
+                    cabInfo['systemId'] = data['systemId'];
+                    cabInfo['areaName'] = data['areaName'];
+                    cabInfo['systemName'] = data['systemName'];
+                }
+            }
+        },
+        error: function (data) {
+            console.log("update cab from db  error")
+        },
+    });
+};
 //////////////////////////////////////////////////
 D3DLib.prototype.updateControls = function () {
     let width = $(D3DOBJ.fId).width();
@@ -708,7 +837,7 @@ D3DLib.prototype.updateControls = function () {
 };
 // Init Axis Helper
 D3DLib.prototype.initAxisHelper = function(){
-	this.axisHelper = new THREE.AxisHelper( 2000 );
+	this.axisHelper = new THREE.AxesHelper( 2000 );
 	this.scene.add(this.axisHelper);
 	let geometry = new THREE.BoxGeometry( 1, 1, 1 );
 	let material = new THREE.MeshBasicMaterial( {color: 0x00ff00} );
@@ -785,9 +914,9 @@ D3DLib.prototype.onUpdateScene = function() {
     if (D3DOBJ['nurbsmaterial'] != null && typeof(D3DOBJ['nurbsmaterial']) !== 'undefined') {
         D3DOBJ['nurbsmaterial']['map']['offset']['y'] -= 0.1;
     }
-    if (D3DOBJ['pathTubeGeometry'] != null && typeof(D3DOBJ['pathTubeGeometry']) !== 'undefined') {
+    if (GCONFIG['roam']===true && D3DOBJ['pathTubeGeometry'] != null && typeof(D3DOBJ['pathTubeGeometry']) !== 'undefined') {
 		let scalar = 1.0;
-        let yStep = 20;
+        let yStep = 50;
         let xStep = 10;
         let camera = D3DOBJ['camera'];
         let pathTubeGeo = D3DOBJ['pathTubeGeometry'];
@@ -802,10 +931,11 @@ D3DLib.prototype.onUpdateScene = function() {
 
         let pointIndex2 = (pointIndex + 30 / pathTubeGeo['parameters']['path']['getLength']()) % 1;
         let pathPoint2 = pathTubeGeo['parameters']['path']['getPointAt'](pointIndex2)['multiplyScalar'](scalar);
+        pathPoint2['x'] += 10;
         pathPoint2['y'] += yStep;
         camera['matrix']['lookAt'](camera['position'], pathPoint2, point2);
         camera['rotation']['setFromRotationMatrix'](camera['matrix'], camera['rotation']['order']);
-        D3DOBJ['dynamicPathTimer'] += 0.0005;
+        D3DOBJ['dynamicPathTimer'] += 0.002;
         if (D3DOBJ['dynamicPathTimer'] > 1.0) {
             D3DOBJ['dynamicPathTimer'] = 0.0
         }
@@ -820,8 +950,7 @@ D3DLib.prototype.updateFromDB = function() {
 	            dataType: 'json',
 	            data: null,
 	            success: function (data) {
-	            	console.log('promise 1');
-	                D3DOBJ.parseTplData(data);
+	            	D3DOBJ.parseTplData(data);
 	                resolve();
 	            },
 	            error: function (data) {
@@ -837,7 +966,6 @@ D3DLib.prototype.updateFromDB = function() {
 	            dataType: 'json',
 	            data: null,
 	            success: function (data) {
-	                console.log('promise 2');
 	                D3DOBJ.parseMeshData(data);
 	                resolve();
 	            },
@@ -854,7 +982,6 @@ D3DLib.prototype.updateFromDB = function() {
 		        dataType:'json',
 		        data: null,
 		        success:function(data) {
-		            console.log('promise 3');
 		            D3DOBJ.parseCloneData(data);
 		            resolve();
 		        },
@@ -871,7 +998,6 @@ D3DLib.prototype.updateFromDB = function() {
 	            dataType: 'json',
 	            data: null,
 	            success: function (data) {
-	                console.log('promise 4');
 	                D3DOBJ.parseLabelData(data);
 	                //D3DOBJ.controls.autoRotate = true;
 	            },
@@ -888,7 +1014,6 @@ D3DLib.prototype.updateFromDB = function() {
 	            dataType: 'json',
 	            data: null,
 	            success: function (data) {
-	                console.log('promise 5');
 	                D3DOBJ.parseDeviceData(data);
 	                resolve();
 	            },
@@ -1171,6 +1296,8 @@ D3DLib.prototype.cloneObj = function(cloneData){
 	let cloneObj = sourceObj.clone();
 	cloneObj['name'] = cloneData['name'];
     cloneObj['uuid'] = cloneData['uuid'];
+    cloneObj['userData']['refCode'] = cloneData['refCode'];
+    cloneObj['userData']['capacity'] = cloneData['capacity'];
     if (cloneObj['children'] != null && cloneObj['children']['length'] > 1) {
         $['each'](cloneObj['children'], function (i, child) {
             child['name'] = child['name'] + '_' + cloneData['name'];
@@ -1709,8 +1836,7 @@ D3DLib.prototype.makeTextSprite = function(name, textConfig){
     let texture = new THREE.Texture(canvas);
     texture['needsUpdate'] = true;
     let spriteMaterial = new THREE.SpriteMaterial({
-        map: texture,
-        useScreenCoordinates: false
+        map: texture
     });
     let sprite = new THREE.Sprite(spriteMaterial);
     let fromObj = D3DOBJ.findObject(name);
@@ -1720,6 +1846,40 @@ D3DLib.prototype.makeTextSprite = function(name, textConfig){
     sprite['name'] = textConfig['name'];
     sprite['scale']['set'](5 * fontsize, 2.5 * fontsize, 1.0);
     D3DOBJ['addObject'](sprite)
+};
+D3DLib.prototype.makeTextSpriteEx = function(config) {
+    // 创建canvas
+    let canvas = document['createElement']('canvas');
+    canvas['width'] = config.hasOwnProperty('width') ? config['width'] : 128;
+    canvas['height'] = config.hasOwnProperty('height') ? config['height'] : canvas['width'] / 2;
+    // 获取上下文 绘制canvas
+    let context = canvas['getContext']('2d');
+    // 绘制背景
+    context['fillStyle'] = config.hasOwnProperty('background') ? config['background'] : 'rgb(128,128,128)';
+    context['fillRect'](0, 0, canvas['width'], canvas['height']);
+    // 绘制文本
+    context['font'] = config.hasOwnProperty('font') ? config['font'] : 'bold 14px Arial';
+    //context['lineWidth'] = borderThickness;
+    context['fillStyle'] = config.hasOwnProperty('textColor') ? config['textColor'] : 'rgb(255,255,255)';
+    let msgArr = config.hasOwnProperty('msgArr') ? (Array.isArray(config['msgArr'])? config['msgArr'] : [config['msgArr']]) : [];
+    for (let i=0; i<msgArr.length; ++i) {
+        let ratio = (i+1)*1.0 /(1 + msgArr.length);
+        context['fillText'](msgArr[i], 10, ratio*canvas['height']);
+    }
+
+    let texture = new THREE.Texture(canvas);
+    texture['needsUpdate'] = true;
+    let spriteMaterial = new THREE.SpriteMaterial({
+        map: texture
+    });
+    let sprite = new THREE.Sprite(spriteMaterial);
+    sprite['name'] = config.hasOwnProperty('name') ? config['name'] : 'unknown';
+    sprite['position']['x'] = config.hasOwnProperty('x') ? config['x'] : 0;
+    sprite['position']['y'] = config.hasOwnProperty('y') ? config['y'] : 0;
+    sprite['position']['z'] = config.hasOwnProperty('z') ? config['z'] : 0;
+    sprite['scale']['set'](40, 40, 1.0);
+    D3DOBJ.addObject(sprite);
+    return sprite;
 };
 D3DLib.prototype.addNurbs = function(nurbsConfig) {
 	let degree1 = 2;
@@ -1870,10 +2030,16 @@ D3DLib.prototype.hideCabinet = function(obj) {
     } else {
         obj.isShowCabinet=true;
     }
-    for(var i=0; i<D3DOBJ.cabList.length; ++i){
+    for(let i=0; i<D3DOBJ.cabList.length; ++i){
         let cab = D3DOBJ.cabList[i];
-        if(cab.name != obj.parent.name) {
+        if(cab.name !== obj.parent.name) {
             cab.visible = !obj.isShowCabinet;
+        }
+    }
+    for(let i=0; i<D3DOBJ.cabInfoSpriteList.length; ++i) {
+        let sprite = D3DOBJ.cabInfoSpriteList[i];
+        if (sprite['userData']['refCode'] !== obj.parent['userData']['refCode']) {
+            sprite.visible = !obj.isShowCabinet;
         }
     }
 };
@@ -1990,7 +2156,6 @@ D3DLib.prototype.showDiv = function(domId, contents){
     // ele['style']['display'] = block;
     // ele['style']['left'] = D3DOBJ['mousePos']['x'] + 5;
     // ele['style']['top'] = D3DOBJ['mousePos']['y'] + 5;
-
     let eleMain = $('<div></div>');
     eleMain.attr('id', domId);
     eleMain.css('left', D3DOBJ['mousePos']['x'] + 5);

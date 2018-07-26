@@ -52,6 +52,7 @@ public class CloneDao {
 					clone.put("scl_y", result.getDouble("scl_y"));
 					clone.put("scl_z", result.getDouble("scl_z"));
 					clone.put("parent", result.getString("parent"));
+					clone.put("refCode", result.getString("refCode"));
 					return clone;
 				}
 			});

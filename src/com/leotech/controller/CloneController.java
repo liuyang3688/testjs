@@ -39,6 +39,17 @@ public class CloneController {
 			e.printStackTrace();
 		}
 	}
+	@RequestMapping("get_all_cab")
+	public void getAllCab(HttpServletRequest request, HttpServletResponse response) {
+		JSONArray cabs = new JSONArray();
+        cabs = CloneService.getAllCab();
+		try {
+			response.getWriter().print(cabs);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
 	@RequestMapping("update_isdirty")
 	public void updateIsDirty(HttpServletRequest request, HttpServletResponse response)
 	{

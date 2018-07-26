@@ -33,7 +33,7 @@ public class DeviceDao {
 		final JSONArray devices = new JSONArray();
 		try {
 			String sqlFilter = " where device.typeId=device_type.uuid";
-			String strSql = "select id,device.code,device.name,device.memo,device_type.tpl  from device, device_type";
+			String strSql = "select id,device.code,device.name,device.memo,device_type.tpl,device.capacity  from device, device_type";
 			strSql += sqlFilter;
 			jdbcTemplate.query(strSql, new RowCallbackHandler(){
 				public void processRow(ResultSet result) throws SQLException {
@@ -43,7 +43,7 @@ public class DeviceDao {
 					device.put("devName", result.getString("name"));
 					device.put("memo", result.getString("memo"));
 					device.put("copyfrom", result.getString("tpl"));
-					
+					device.put("capacity", result.getDouble("capacity"));
 					devices.add(device);
 				}
 			});

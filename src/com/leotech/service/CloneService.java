@@ -6,27 +6,28 @@ import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.JSONArray;
 import com.leotech.dao.CloneDao;
 import com.leotech.dao.DeviceDao;
-import com.leotech.dao.EthDao;
+import com.leotech.dao.CabDao;
 
 public class CloneService {
-	public static List<JSONObject> getAllClone() {
-		return CloneDao.instance().getAllClone();
-	}
-	public static JSONArray getAllDevice() {
-		return DeviceDao.instance().getAllDevice();
-	}
-	public static Boolean updateIsDirty(int uuid){
-		Boolean isDirty = false;
-		return CloneService.updateIsDirty(uuid, isDirty);
-	}
-	public static Boolean updateIsDirty(int uuid, Boolean isDirty){
-		return CloneDao.instance().updateIsDirty(uuid, isDirty);
-	}
-	public static Boolean updateIsDirty_All(){
-		Boolean isDirty = true;
-		return CloneService.updateIsDirty_All(isDirty);
-	}
-	public static Boolean updateIsDirty_All(Boolean isDirty){
-		return CloneDao.instance().updateIsDirty_All(isDirty);
-	}
+    public static List<JSONObject> getAllClone() {
+        return CloneDao.instance().getAllClone();
+    }
+    public static JSONArray getAllDevice() {
+        return DeviceDao.instance().getAllDevice();
+    }
+    public static JSONArray getAllCab() { return CabDao.instance().getAllCab();}
+    public static Boolean updateIsDirty(int uuid){
+        Boolean isDirty = false;
+        return CloneService.updateIsDirty(uuid, isDirty);
+    }
+    public static Boolean updateIsDirty(int uuid, Boolean isDirty){
+        return CloneDao.instance().updateIsDirty(uuid, isDirty);
+    }
+    public static Boolean updateIsDirty_All(){
+        Boolean isDirty = true;
+        return CloneService.updateIsDirty_All(isDirty);
+    }
+    public static Boolean updateIsDirty_All(Boolean isDirty){
+        return CloneDao.instance().updateIsDirty_All(isDirty);
+    }
 }

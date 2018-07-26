@@ -9,7 +9,8 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <title>GLSERVER测试</title>
-
+    <link rel="shortcut icon" href="/glserver/favicon.ico"/>
+    <link rel="bookmark" href="/glserver/favicon.ico"/>
     <style type="text/css">
         * {
             margin: 0;
@@ -73,31 +74,8 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
             padding-left:10px;
         }
     </style>
-
-    <script type="text/javascript" src="/glserver/static/js/jquery-1.3.2.js"></script>
-    <script src="/glserver/static/js/three.js"></script>
-    <script src="/glserver/static/js/jquery-2.2.4.min.js"></script>
-    <script src="/glserver/static/js/stats.min.js"></script>
-    <script src="/glserver/static/js/OrbitControls.js"></script>
-    <script src="/glserver/static/js/ThreeBSP.js"></script>
-    <%--<script src="/glserver/static/js/ThreeCSG.js"></script>--%>
-    <script src="/glserver/static/js/curves/NURBSCurve.js"></script>
-    <script src="/glserver/static/js/curves/NURBSSurface.js"></script>
-    <script src="/glserver/static/js/curves/NURBSUtils.js"></script>
-    <script src="/glserver/static/js/Tween.min.js"></script>
-    <script src="/glserver/static/js/CSS3DRenderer.js"></script>
-    <script src="/glserver/static/js/common.js"></script>
-    <script src="/glserver/static/js/d3d.js"></script>
-    <script type="text/javascript">
-        // 操作菜单
-    	$(document).ready(function () {
-	         // 初始化
-	         let ins = new D3DLib("#canvas-frame", 0xCCC);
-	         ins.start();
-           
-        });
-        
-    </script>
+    <link rel="stylesheet" href="/glserver/static/css/bootstrap.min.css" />
+    <%--<script type="text/javascript" src="/glserver/static/js/jquery-1.3.2.js"></script>--%>
 
 </head>
 <body>
@@ -117,4 +95,28 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
     <%--</div>--%>
 
 </body>
+<script src="/glserver/static/js/three.js"></script>
+<script src="/glserver/static/js/jquery-3.0.0.min.js"></script>
+<script src="/glserver/static/js/stats.min.js"></script>
+<script src="/glserver/static/js/OrbitControls.js"></script>
+<script src="/glserver/static/js/ThreeBSP.js"></script>
+<script src="/glserver/static/js/curves/NURBSCurve.js"></script>
+<script src="/glserver/static/js/curves/NURBSSurface.js"></script>
+<script src="/glserver/static/js/curves/NURBSUtils.js"></script>
+<script src="/glserver/static/js/Tween.min.js"></script>
+<script src="/glserver/static/js/CSS3DRenderer.js"></script>
+<script src="/glserver/static/js/common.js"></script>
+<script src="/glserver/static/js/popper.min.js"></script>
+<script src="/glserver/static/js/bootstrap.min.js"></script>
+<script src="/glserver/static/js/d3d.js"></script>
+<script type="text/javascript">
+    // 操作菜单
+    $(document).ready(function () {
+        // 初始化
+        let ins = new D3DLib("#canvas-frame", 0xCCC);
+        ins.start();
+
+    });
+
+</script>
 </html>
