@@ -49,6 +49,26 @@ public class CloneController {
 			e.printStackTrace();
 		}
 	}
+	@RequestMapping("get_all_area")
+	public void getAllArea(HttpServletRequest request, HttpServletResponse response) {
+		JSONArray areas = new JSONArray();
+		areas = CloneService.getAllArea();
+		try {
+			response.getWriter().print(areas);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	@RequestMapping("get_all_sys")
+	public void getAllSys(HttpServletRequest request, HttpServletResponse response) {
+		JSONArray syss = new JSONArray();
+		syss = CloneService.getAllSys();
+		try {
+			response.getWriter().print(syss);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
 
 	@RequestMapping("update_isdirty")
 	public void updateIsDirty(HttpServletRequest request, HttpServletResponse response)

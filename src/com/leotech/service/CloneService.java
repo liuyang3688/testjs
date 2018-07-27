@@ -4,9 +4,7 @@ import java.util.List;
 
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.JSONArray;
-import com.leotech.dao.CloneDao;
-import com.leotech.dao.DeviceDao;
-import com.leotech.dao.CabDao;
+import com.leotech.dao.*;
 
 public class CloneService {
     public static List<JSONObject> getAllClone() {
@@ -16,6 +14,8 @@ public class CloneService {
         return DeviceDao.instance().getAllDevice();
     }
     public static JSONArray getAllCab() { return CabDao.instance().getAllCab();}
+    public static JSONArray getAllArea() { return AreaDao.instance().getAllArea();}
+    public static JSONArray getAllSys() { return SysDao.instance().getAllSys();}
     public static Boolean updateIsDirty(int uuid){
         Boolean isDirty = false;
         return CloneService.updateIsDirty(uuid, isDirty);

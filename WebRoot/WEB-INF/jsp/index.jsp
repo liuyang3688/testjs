@@ -75,25 +75,13 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
         }
     </style>
     <link rel="stylesheet" href="/glserver/static/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="/glserver/static/css/bootstrapValidator.min.css" />
+    <link rel="stylesheet" href="/glserver/static/css/customValidator.css" />
     <%--<script type="text/javascript" src="/glserver/static/js/jquery-1.3.2.js"></script>--%>
 
 </head>
 <body>
 <div id="canvas-frame"></div>
-    <%--<div id="title" onclick="closeDiv('main')">设备实时数据--%>
-    <%--<div id="ten" onclick="closeDiv('main')"></div>--%>
-    <%--<div id="img" title="关闭" onclick="closeDiv('main')" ></div>--%>
-    <%--</div>--%>
-    <%--<div id="content" style="">--%>
-    <%--<div style="float:center">网线名称：<input type="text" id="item1" value="allen" /></div>--%>
-    <%--<div style="float:center">起始网口：<input type="text" id="item1" name="fname" value="allen" /></div>--%>
-    <%--<div style="float:center">终止端口：<input type="text" id="item1" name="fname" value="allen" /></div>--%>
-    <%--<div style="float:center">所属设备：<input type="text" id="item1" name="fname" value="allen" /></div>--%>
-    <%--</div>--%>
-    <%--<div class="qrcode" style="">--%>
-    <%--<img src="res/qrcode.png" style="width: 100px;"/>--%>
-    <%--</div>--%>
-
 </body>
 <script src="/glserver/static/js/three.js"></script>
 <script src="/glserver/static/js/jquery-3.0.0.min.js"></script>
@@ -108,6 +96,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 <script src="/glserver/static/js/common.js"></script>
 <script src="/glserver/static/js/popper.min.js"></script>
 <script src="/glserver/static/js/bootstrap.min.js"></script>
+<script src="/glserver/static/js/bootstrapValidator.min.js"></script>
 <script src="/glserver/static/js/d3d.js"></script>
 <script type="text/javascript">
     // 操作菜单
@@ -117,6 +106,5 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
         ins.start();
 
     });
-
 </script>
 </html>

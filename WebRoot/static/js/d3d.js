@@ -32,6 +32,9 @@ let GCONFIG = {
     air:false,
     smoke:false,
     cab_usage:false,
+    cab_sel:false,
+    areaMap: new Map(),
+    sysMap: new Map()
 };
 function D3DLib(fId, clearColor)
 {
@@ -174,9 +177,6 @@ D3DLib.prototype.onDocumentMouseDown = function(event){
 	if(D3DOBJ.controls.autoRotate === true){
 		D3DOBJ.controls.autoRotate = false;
 	}
-    // if(GCONFIG['roam']) {
-	 //    D3DOBJ.roam();
-    // }
 	
 	D3DOBJ['mousePos']['x'] = event['clientX'];
     D3DOBJ['mousePos']['y'] = event['clientY'];
@@ -211,7 +211,6 @@ D3DLib.prototype.onEventDeal = function(evtname, event){
 	}
 	let intersectObjects = D3DOBJ['raycaster']['intersectObjects'](D3DOBJ.scene.children, true);
 	if (intersectObjects['length'] > 0) {
-		//console.log('pos2 1event:'+evtname);
 		D3DOBJ['controls']['enabled'] = false;
 		D3DOBJ['SELECTED'] = intersectObjects[0]['object'];
 		
@@ -259,8 +258,6 @@ D3DLib.prototype.onDocumentMouseMove = function(event){
 
     let intersectObjects = D3DOBJ['raycaster']['intersectObjects'](D3DOBJ.scene.children, true);
     if (intersectObjects['length'] > 0) {
-        //console.log('pos2 1event:'+evtname);
-        //D3DOBJ['controls']['enabled'] = false;
         D3DOBJ['SELECTED'] = intersectObjects[0]['object'];
         let SEL_MESH = D3DOBJ['SELECTED'];
         if (SEL_MESH instanceof THREE.Mesh &&
@@ -305,8 +302,6 @@ D3DLib.prototype.onDocumentMouseMove = function(event){
                 D3DOBJ.LAST_MESH = SEL_MESH;
             }
         }
-        
-        //D3DOBJ['controls']['true'] = true;
     }
     event['preventDefault']();
 };
@@ -316,11 +311,11 @@ D3DLib.prototype.initMouseCtrl = function () {
     this.controls.minDistance=100;
     this.controls.maxDistance = 3000;
     this.controls.zoomSpeed = 2;
-    this.controls.addEventListener('change', this.updateControls);
+    //this.controls.addEventListener('change', this.updateControls);
 };
 //////////////////////////////////////////////////
 D3DLib.prototype.aeroview = function(){
-	if (!D3DOBJ.controls.autoRotate){
+    if (!D3DOBJ.controls.autoRotate){
         D3DOBJ.camera.position.set(1000,800,1000);
         D3DOBJ.camera.lookAt(0,0,0);
     }
@@ -829,11 +824,209 @@ D3DLib.prototype.calcCabInfo = function() {
         },
     });
 };
+D3DLib.prototype.cab_sel_box = function() {
+    if (!GCONFIG['cab_sel'])
+    {
+        if (GCONFIG['areaMap'].size === 0) {
+            // 请求area
+            $.ajax({
+                url:'/glserver/clone/get_all_area',
+                dataType:'json',
+                data: null,
+                async: false,
+                success:function(datas){
+                    for (let i=0; i<datas.length; ++i) {
+                        let data = datas[i];
+                        GCONFIG['areaMap'].set(data['id'], data);
+                    }
+                },
+                error: function(data) {
+                    console.log("load area from db error");
+                }
+            });
+        }
+        if (GCONFIG['sysMap'].size === 0) {
+            // 请求sys
+            $.ajax({
+                url:'/glserver/clone/get_all_sys',
+                dataType:'json',
+                data: null,
+                async: false,
+                success:function(datas){
+                    for (let i=0; i<datas.length; ++i) {
+                        let data = datas[i];
+                        GCONFIG['sysMap'].set(data['id'], data);
+                    }
+                },
+                error: function(data) {
+                    console.log("load sys from db error");
+                }
+            });
+        }
+        //div框
+        let eleMain = $("<form id='cab_sel_box'></form>");
+        eleMain.css({
+            'position':'absolute',
+            'top':60,
+            'right':20,
+            'width':300,
+            'padding':30,
+            'background':'#5993d1',
+            'border-radius':20,
+            'opacity': 0.9
+        });
+
+        // 标题栏
+        let eleTitle = $("<div class='form-group'><h4 class='text-center'>机柜选择</h4></div>");
+        eleMain.append(eleTitle);
+        // 设备所属区域
+        let eleArea = $('<div class="form-group"></div>');
+        let eleAreaSel = $('<select id="cab_sel_box_area" class="custom-select" name="sel_area"></select>');
+        eleAreaSel.append($('<option value="0">请选择设备所属区域</option>'));
+        GCONFIG['areaMap'].forEach(function (val, key, map) {
+            eleAreaSel.append($('<option value='+ val['id'] +'>' + val['name'] + '</option>'));
+        });
+        eleArea.append(eleAreaSel);
+        eleMain.append(eleArea);
+        // 设备所属系统
+        let eleSys = $('<div class="form-group"></div>');
+        let eleSysSel = $('<select id="cab_sel_box_sys" class="custom-select" name="sel_sys"></select>');
+        eleSysSel.append($('<option value="0">请选择设备所属系统</option>'));
+        eleSys.append(eleSysSel);
+        eleMain.append(eleSys);
+        // U数
+        let eleU = $(
+            '<div class="form-group"><div class="input-group">' +
+                '<input type="text" id="cab_sel_box_u" class="form-control" placeholder="请输入占用U数" name="text_u">' +
+                '<div class="input-group-append">' +
+                    '<span class="input-group-text">U</span>' +
+                '</div>' +
+            '</div></div>');
+        eleMain.append(eleU);
+        // 容量
+        let eleCap = $(
+            '<div class="form-group"><div class="input-group">' +
+                '<input type="text" id="cab_sel_box_cap" class="form-control" placeholder="请输入额定容量" name="text_cap">' +
+                '<div class="input-group-append">' +
+                    '<span class="input-group-text">W</span>' +
+                '</div>' +
+            '</div></div>');
+        eleMain.append(eleCap);
+        // 查找按键
+        let eleBtnFind = $(
+            '<div class="form-group">' +
+                '<button type="button" id="cab_sel_box_find" class="btn btn-primary">查找机柜</button>&nbsp;&nbsp' +
+                '<button type="button" class="btn btn-primary" onclick="D3DOBJ.cab_sel_box()">关闭对话框</button>' +
+            '</div>'
+        );
+        eleMain.append(eleBtnFind);
+        // 推荐机柜
+        let eleTextArea = $(
+            '<div id="cab_box_res_grp_res" class="form-group" style="display:none;">' +
+                '<label for="basic-url">推荐上架机柜（仅前3）</label>' +
+                '<textarea class="form-control" id="cab_sel_box_res" id="tarea1" rows="3"></textarea>' +
+            '</div>'
+        );
+        eleMain.append(eleTextArea);
+        // 关闭对话框
+        // let eleBtnClose = $(
+        //     '<div class="form-group">' +
+        //         '' +
+        //     '</div>'
+        // );
+        //eleMain.append(eleBtnClose);
+        $('body').append(eleMain);
+
+        // 添加验证事件
+        $('#cab_sel_box').bootstrapValidator({
+            message: 'This value is not valid',
+            excluded : [':disabled'],
+            feedbackIcons: {
+                valid: 'glyphicon glyphicon-ok',
+                invalid: 'glyphicon glyphicon-remove',
+                validating: 'glyphicon glyphicon-refresh'
+            },
+            fields: {
+                text_u: {
+                    message: '设备占用U数 格式不正确',
+                    validators: {
+                        notEmpty: {
+                            message: '设备占用U数不能为空'
+                        },
+                        digits: {
+                            message: '请填写数字'
+                        },
+                        between:{
+                            min: 1,
+                            max: 42,
+                            message:'占用U数应大于0小于42'
+                        }
+                    }
+                },
+                text_cap: {
+                    message: '设备容量 格式不正确',
+                    validators: {
+                        notEmpty: {
+                            message: '设备容量不能为空'
+                        },
+                        digits:{
+                            message: '请填写数字'
+                        },
+                        between:{
+                            min: 1,
+                            max: 2000,
+                            message:'容量大于1W小于2000W'
+                        }
+                    }
+                },
+                sel_area: {
+                    message: '所属区域 格式不正确',
+                    validators: {
+                        notEmpty: {
+                            message: '所属区域不能为空'
+                        },
+                        callback: {
+                            message: '请选择所属区域',
+                            callback: function(value, validator) {
+                                if (value === "0") {
+                                    return false;
+                                } else {
+                                    return true;
+                                }
+                            }
+
+                        }
+                    }
+                },
+                sel_sys: {
+                    message: '所属系统 格式不正确',
+                    validators: {
+                        notEmpty: {
+                            message: '所属系统不能为空'
+                        },
+                        callback: {
+                            message: '请选择所属系统',
+                            callback: function(value, validator) {
+                                if (value === "0") {
+                                    return false;
+                                } else {
+                                    return true;
+                                }
+                            }
+
+                        }
+                    }
+                }
+            }
+        });
+        D3DOBJ.controls.enabled = false;
+    } else {
+        D3DOBJ.closeDiv('cab_sel_box');
+    }
+    GCONFIG['cab_sel'] = !GCONFIG['cab_sel'];
+}
 //////////////////////////////////////////////////
 D3DLib.prototype.updateControls = function () {
-    let width = $(D3DOBJ.fId).width();
-    let height = $(D3DOBJ.fId).height();
-	//console.log("canvas width:"+width+",height:"+height);
 };
 // Init Axis Helper
 D3DLib.prototype.initAxisHelper = function(){
@@ -884,7 +1077,6 @@ D3DLib.prototype.animation = function() {
 	D3DOBJ.onUpdateScene();
 	D3DOBJ.statUi.update();
 	requestAnimationFrame(D3DOBJ['animation']);
-	//D3DOBJ.controls.update();
 	D3DOBJ.renderer.render(D3DOBJ.scene, D3DOBJ.camera);
 };
 let isFirst = true;
@@ -935,7 +1127,7 @@ D3DLib.prototype.onUpdateScene = function() {
         pathPoint2['y'] += yStep;
         camera['matrix']['lookAt'](camera['position'], pathPoint2, point2);
         camera['rotation']['setFromRotationMatrix'](camera['matrix'], camera['rotation']['order']);
-        D3DOBJ['dynamicPathTimer'] += 0.002;
+        D3DOBJ['dynamicPathTimer'] += 0.0005;
         if (D3DOBJ['dynamicPathTimer'] > 1.0) {
             D3DOBJ['dynamicPathTimer'] = 0.0
         }
@@ -2232,3 +2424,55 @@ function DelBoxHelper(){
         D3DOBJ.rmObject(D3DOBJ['boxHelper']);
     }
 }
+///////////////////////////////////////////Cab_sel_box
+// 响应cab_sel_box事件
+$(document).on('mouseover','#cab_sel_box', function(){
+    D3DOBJ.controls.enabled = false;
+});
+$(document).on('mouseout','#cab_sel_box', function(){
+    D3DOBJ.controls.enabled = true;
+});
+$(document).on('change', "#cab_sel_box_area", function(){
+    $("#cab_sel_box_sys").empty();
+    $("#cab_sel_box_sys").append($('<option>请选择设备所属系统</option>'));
+    let selVal =$("#cab_sel_box_area").val();
+    GCONFIG['sysMap'].forEach(function(val, key, map){
+        if (val['areaId'] === parseInt(selVal)){
+            $("#cab_sel_box_sys").append($('<option value='+ val['id'] +'>' + val['name'] + '</option>'));
+        }
+    });
+});
+$(document).on('submit', "#cab_sel_box", function(ev){
+    ev.preventDefault();
+});
+$(document).on('click','#cab_sel_box_find', function(){
+    let validator = $("#cab_sel_box").data('bootstrapValidator');
+    validator.validate();//提交验证
+    if (validator.isValid()) {//获取验证结果，如果成功，执行下面代码
+        let areaId = parseInt($('#cab_sel_box_area').val());
+        let systemId = parseInt($('#cab_sel_box_sys').val());
+        let u = parseInt($('#cab_sel_box_u').val());
+        let cap = parseInt($('#cab_sel_box_cap').val());
+        let count = 0;
+        if (D3DOBJ.cabInfoMap.size === 0) {
+            D3DOBJ.calcCabInfo();
+        }
+        $('#cab_sel_box_res').empty();
+        D3DOBJ.cabInfoMap.forEach(function(val, key, map){
+            if (count<3){
+                if (areaId === val['areaId'] &&
+                    systemId === val['systemId'] &&
+                    u <= val['maxConsU'] &&
+                    cap <= val['remainCap']
+                ) {
+                    count += 1;
+                    $('#cab_sel_box_res').append("机柜" + count + ':' + key);
+                    if (count !== 3) {
+                        $('#cab_sel_box_res').append('\n');
+                    }
+                }
+            }
+        });
+        $('#cab_box_res_grp_res').css('display','block');
+    }
+});
