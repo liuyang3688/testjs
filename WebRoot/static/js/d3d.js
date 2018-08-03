@@ -1,5 +1,19 @@
 let D3DOBJ = null;
 var colorArr = [ 'red', 'green', 'blue', 'yellow', 'pruple' ];
+let BJLX_AIR = 1,
+    BJLX_FIRE = 2,
+    BJLX_SERVER = 3,
+    BJLX_UPS = 4;
+var CsMap_AIR = {
+    1:'空调参数1',
+    2:'空调参数2',
+    3:'空调参数3'
+};
+var CsMap_FIRE = {
+    1:'消防参数1',
+    2:'消防参数2',
+    3:'消防参数3'
+};
 function getColorByRatio(ratio){
     // 绿 蓝 黄 红
     let color = 'grey';
@@ -14,6 +28,14 @@ function getColorByRatio(ratio){
     }
     return color;
 }
+function pad(num, n) {
+    var len = num.toString().length;
+    while(len < n) {
+        num = "0" + num;
+        len++;
+    }
+    return num;
+};
 let GCONFIG = {
 	pic_path : '/glserver/static/pic/',
 	bg_img: 'bg.jpg',
@@ -33,6 +55,7 @@ let GCONFIG = {
     smoke:false,
     cab_usage:false,
     cab_sel:false,
+    dyn_data:false,
     areaMap: new Map(),
     sysMap: new Map()
 };
@@ -46,6 +69,7 @@ function D3DLib(fId, clearColor)
 	this.cabList = [];
 	this.cabInfoMap = new Map();
 	this.cabInfoSpriteList = [];
+	this.dynDataSpriteMap = new Map();
 	this.LAST_MESH = null;
 	this.tplList = new Map();
 	this.events = null;
@@ -173,6 +197,8 @@ D3DLib.prototype.initThree = function()
 };
 let dbclick = 0;
 let evtname = '';
+let toFalg = false;
+let toId = 0;
 D3DLib.prototype.onDocumentMouseDown = function(event){
 	if(D3DOBJ.controls.autoRotate === true){
 		D3DOBJ.controls.autoRotate = false;
@@ -185,22 +211,26 @@ D3DLib.prototype.onDocumentMouseDown = function(event){
 	viewPt.y = -(event['clientY'] / D3DOBJ['height']) * 2 + 1;
 	D3DOBJ['raycaster']['setFromCamera'](viewPt, D3DOBJ['camera']);
 	dbclick++;
-	
-	setTimeout(function () {
-		if( event['target']['nodeName'] === 'CANVAS'){
-			if(event.button === 2){
-				evtname = 'rclick';
-			} else {
-				if (dbclick >= 2) {
-					evtname = 'dbclick'
-				} else {
-					evtname = 'click'
-				}
-			}
-		}
-		dbclick = 0;
-		D3DOBJ['onEventDeal'](evtname, event)
-	}, 200);
+	if (!toFalg) {
+        toId = setTimeout(function () {
+            if( event['target']['nodeName'] === 'CANVAS'){
+                if(event.button === 2){
+                    evtname = 'rclick';
+                } else {
+                    if (dbclick >= 2) {
+                        evtname = 'dbclick';
+                    } else if(dbclick === 1) {
+                        evtname = 'click';
+                    }
+                }
+            }
+            dbclick = 0;
+            clearTimeout(toId);
+            console.log(evtname);
+            D3DOBJ['onEventDeal'](evtname, event)
+        }, 200);
+    }
+
 	event['preventDefault']();
 };
 D3DLib.prototype.onEventDeal = function(evtname, event){
@@ -719,6 +749,8 @@ D3DLib.prototype.cab_usage = function() {
             config['msgArr'] = msgArr;
             let sprite = D3DOBJ.makeTextSpriteEx(config);
             sprite['userData']['refCode'] = cab['userData']['refCode'];
+            // 判断柜子是否visible
+            sprite.visible = cab.visible;
             D3DOBJ.cabInfoSpriteList.push(sprite);
         }
     } else {
@@ -877,7 +909,7 @@ D3DLib.prototype.cab_sel_box = function() {
         });
 
         // 标题栏
-        let eleTitle = $("<div class='form-group'><h4 class='text-center'>机柜选择</h4></div>");
+        let eleTitle = $("<div class='form-group'><h4 class='text-center'>推荐机柜</h4></div>");
         eleMain.append(eleTitle);
         // 设备所属区域
         let eleArea = $('<div class="form-group"></div>');
@@ -1024,7 +1056,127 @@ D3DLib.prototype.cab_sel_box = function() {
         D3DOBJ.closeDiv('cab_sel_box');
     }
     GCONFIG['cab_sel'] = !GCONFIG['cab_sel'];
-}
+};
+D3DLib.prototype.help = function(){
+    D3DOBJ.showDiv('help', );
+};
+let dyn_data_int = null;
+//width
+//height
+//background
+//font
+//textColor
+//msgArr
+//x-y-z
+//parent
+//name
+D3DLib.prototype.parseDynData_Air = function(datas, config) {
+    for (let key in datas) {
+        config['parent'] = 'aircondition' + key;
+        config['name'] = config['parent'] +'-dyn_data';
+        config['msgArr'] = [];
+        let csArr = datas[key];
+        for (let i=0; i<csArr.length; ++i) {
+            let bj = csArr[i];
+            config['msgArr'].push(CsMap_AIR[bj['bjcs']] + ':' + bj['val'].toFixed(2));
+        }
+        let mapKey = pad(BJLX_AIR, 3) + pad(key, 3);
+        if (D3DOBJ.dynDataSpriteMap.has(mapKey)){
+            // 当前设备已生成过
+            let sprite = D3DOBJ.dynDataSpriteMap.get(mapKey);
+            D3DOBJ.rmObject(sprite, D3DOBJ.findObject(sprite['userData']['parent']));
+
+            //let canvas = sprite.material.map.image;
+            //D3DOBJ.drawOnCanvas(canvas, config);
+        }
+        //else {
+            // 当前设备未生成过
+            let sprite = D3DOBJ.makeTextSpriteEx(config);
+            sprite['userData']['parent'] = config['parent'];
+            D3DOBJ.dynDataSpriteMap.set(mapKey, sprite);
+        //}
+    }
+};
+D3DLib.prototype.parseDynData_Fire = function(datas, config) {
+    for (let key in datas) {
+        config['parent'] = 'firedevice' + key;
+        config['name'] = config['parent'] +'-dyn_data';
+        config['msgArr'] = [];
+        let csArr = datas[key];
+        for (let i=0; i<csArr.length; ++i) {
+            let bj = csArr[i];
+            config['msgArr'].push(CsMap_FIRE[bj['bjcs']] + ':' + bj['val'].toFixed(2));
+        }
+        let mapKey = pad(BJLX_FIRE, 3) + pad(key, 3);
+        if (D3DOBJ.dynDataSpriteMap.has(mapKey)){
+            // 当前设备已生成过
+            let sprite = D3DOBJ.dynDataSpriteMap.get(mapKey);
+            D3DOBJ.rmObject(sprite, D3DOBJ.findObject(sprite['userData']['parent']));
+
+            //let canvas = sprite.material.map.image;
+            //D3DOBJ.drawOnCanvas(canvas, config);
+        }
+        //else {
+        // 当前设备未生成过
+        let sprite = D3DOBJ.makeTextSpriteEx(config);
+        sprite['userData']['parent'] = config['parent'];
+        D3DOBJ.dynDataSpriteMap.set(mapKey, sprite);
+        //}
+    }
+};
+D3DLib.prototype.parseDynData_Server = function(arr) {
+
+};
+D3DLib.prototype.parseDynData_Ups = function(arr) {
+
+};
+D3DLib.prototype.dyn_data = function() {
+    if (!GCONFIG['dyn_data']) {
+        let config = {};
+        config['font'] = '28px FangSong';
+        config['background'] = 'orange';
+        config['textColor'] = 'blue';
+        config['width'] = 240;
+        config['height'] = 280;
+        config['x'] = 0;
+        config['y'] = 130;
+        config['z'] = 0;
+        config['msgArr'] = [];
+        dyn_data_int = setInterval(function(){
+            $.ajax({
+                url: '/glserver/rt/get_rt_data',
+                dataType: 'json',
+                data: null,
+                success: function (datas) {
+                    if (datas.hasOwnProperty(BJLX_AIR)) {// 解析空调
+                        D3DOBJ.parseDynData_Air(datas[BJLX_AIR], config);
+                    }
+                    if (datas.hasOwnProperty(BJLX_FIRE)) {//解析灭火器
+                        D3DOBJ.parseDynData_Fire(datas[BJLX_FIRE], config);
+                    }
+                    if (datas.hasOwnProperty(BJLX_SERVER)) {//解析服务器
+                        D3DOBJ.parseDynData_Server(datas[BJLX_SERVER], config);
+                    }
+                    if (datas.hasOwnProperty(BJLX_UPS)) {//解析UPS
+                        D3DOBJ.parseDynData_Ups(datas[BJLX_UPS], config);
+                    }
+                },
+                error: function (data) {
+                    console.log("update rt data from backend  error")
+                },
+            });
+        }, 2000);
+    } else {
+        if (dyn_data_int !== null) {
+            clearInterval(dyn_data_int);
+            dyn_data_int = null;
+            D3DOBJ.dynDataSpriteMap.forEach(function(val, key, map){
+                D3DOBJ.rmObject(val, D3DOBJ.findObject(val['userData']['parent']));
+            });
+        }
+    }
+    GCONFIG['dyn_data'] = !GCONFIG['dyn_data'];
+};
 //////////////////////////////////////////////////
 D3DLib.prototype.updateControls = function () {
 };
@@ -1249,26 +1401,33 @@ D3DLib.prototype.parseDeviceData = function(datas){
 		data['name'] = 'dev_' + devName;
         data['parent'] = 'cab_' + cabId;
         data['x'] = 0;
-        data['y'] = GCONFIG['u_height']*startU - GCONFIG['cab_inner_height']/2;
+        data['y'] = GCONFIG['u_height']*startU - GCONFIG['cab_inner_height']/2 - 2;
         data['z'] = 0;
         data['rot_y'] = 180;
 
         let mesh = D3DOBJ.cloneObj(data);
         D3DOBJ.addObject(mesh, data['parent']);
 
-        //修改isDirty标志
-        // $.ajax({
-        //     type:'post',
-        //     url:'/glserver/label/update_isdirty',
-        //     dataType:'json',
-        //     data: { uuid: data['uuid'] },
-        //     success:function(data){
-        //         //
-        //     },
-        //     error: function(data) {
-        //         console.log("update label isdirty error uuid:"+data['uuid']);
-        //     }
-        // });
+        // 生成设备的标签信息
+        let devData = {};
+        devData['width'] = 300;
+        devData['height'] = 200;
+        devData['fillColor'] = 'green';
+        devData['pic'] = 'device/dev.png';
+        devData['textAlign'] = 'left';
+        devData['texts'] = [
+            {text: data['devName'], color:'black', font: '20px bold',offX:10,offY:110}
+        ];
+        devData['name'] = 'dlabel_'+data['code'];
+        devData['x'] = 23;
+        devData['y'] = useU*2.5;
+        devData['z'] = 15;
+        devData['rot_x'] = 90;
+        devData['rot_z'] = 90;
+        devData['scl_x'] = 0.1;
+        devData['scl_y'] = 0.1;
+        devData['parent'] = data['name'];
+        D3DOBJ.createLabel(devData);
     }
 };
 D3DLib.prototype.addObject = function(object){
@@ -1356,21 +1515,6 @@ D3DLib.prototype.parseLabelData = function(datas){
 			label.parent.remove(label);
 		}
 		label = D3DOBJ.createLabel(data);
-		//D3DOBJ.addObject(label, data['parent']);
-		
-		//修改isDirty标志
-//		$.ajax({
-//			type:'post',
-//			url:'/glserver/label/update_isdirty',
-//			dataType:'json',
-//			data: { uuid: data['uuid'] },
-//			success:function(data){
-//				//
-//			},
-//			error: function(data) {
-//				console.log("update label isdirty error uuid:"+data['uuid']);
-//			}
-//		});
 	}
 };
 D3DLib.prototype.createLabel = function(data){
@@ -1404,7 +1548,7 @@ D3DLib.prototype.drawLabel = function(data){
     } else {
         drawingContext.fillRect(0, 0, drawingCanvas.width, drawingCanvas.height);
     }
-    drawingContext.textAlign = 'center';
+    drawingContext.textAlign = data['textAlign']||'center';
     drawingContext.textBaseline = 'middle';
     //drawingContext.fillStyle = '#FFFFFF';
     if(exist(data['texts'])){
@@ -1456,20 +1600,6 @@ D3DLib.prototype.parseCloneData = function(data){
 		
 		mesh = D3DOBJ.cloneObj(cloneData);
 		D3DOBJ.addObject(mesh, cloneData['parent']);
-		
-		//修改isDirty标志
-//		$.ajax({
-//			type:'post',
-//			url:'/glserver/clone/update_isdirty',
-//			dataType:'json',
-//			data: { uuid: cloneData['uuid'] },
-//			success:function(data){
-//				//
-//			},
-//			error: function(data) {
-//				console.log("update clone isdirty error uuid:"+cloneData['uuid']);
-//			}
-//		});
 	}
 };
 D3DLib.prototype.cloneObj = function(cloneData){
@@ -1528,6 +1658,10 @@ D3DLib.prototype.parseTplData = function(data) {
 		case 'cube':
 			tpl = D3DOBJ.createBox(tplData);
 			break;
+		case 'cabinet':
+			tpl = D3DOBJ.createCabinet(tplData);
+		    break;
+
 		}
 		if(tplData['type'] !== 'hole'){
 			if(exist(tplData['parent']) && tplData['parent'] !== ''){
@@ -1536,6 +1670,28 @@ D3DLib.prototype.parseTplData = function(data) {
 			D3DOBJ.tplList.set(tplData['name'], tpl);
 		}
 	}
+};
+D3DLib.prototype.createCabinet = function(data) {
+    let length = data['length'] || 1000;
+    let width = data['width'] || length;
+    let height = data['height'] || 10;
+    let x = data['x'] || 0;
+    let y = data['y'] || 0;
+    let z = data['z'] || 0;
+    let boxGeo = new THREE.BoxGeometry( length, height, width, 0, 0, 1);
+    // 初始化全局
+    let material = new THREE.MeshLambertMaterial( {
+        transparent:data['transparent']?true:false,
+        opacity:data['opacity']
+    } );
+    let box = new THREE.Mesh( boxGeo, material );
+    box['castShadow'] = true;
+    box['receiveShadow'] = true;
+    box['uuid'] = data['uuid'];
+    box['name'] = data['name'];
+    box['position']['set'](x, y, z);
+
+    return box;
 };
 D3DLib.prototype.parseMeshData = function(data){
 	for(let i=0; i<data.length; ++i){
@@ -1992,7 +2148,37 @@ D3DLib.prototype.addTunnel = function (config, points) {
     return mesh
 };
 D3DLib.prototype.makeDynamicTextSprite = function(name, config){
-	
+    // 创建canvas
+    let canvas = document['createElement']('canvas');
+    canvas['width'] = config.hasOwnProperty('width') ? config['width'] : 128;
+    canvas['height'] = config.hasOwnProperty('height') ? config['height'] : canvas['width'] / 2;
+    // 获取上下文 绘制canvas
+    let context = canvas['getContext']('2d');
+    // 绘制背景
+    context['fillStyle'] = config.hasOwnProperty('background') ? config['background'] : 'rgb(128,128,128)';
+    context['fillRect'](0, 0, canvas['width'], canvas['height']);
+    // 绘制文本
+    context['font'] = config.hasOwnProperty('font') ? config['font'] : 'bold 14px Arial';
+    //context['lineWidth'] = borderThickness;
+    context['fillStyle'] = config.hasOwnProperty('textColor') ? config['textColor'] : 'rgb(255,255,255)';
+    let msgArr = config.hasOwnProperty('msgArr') ? (Array.isArray(config['msgArr'])? config['msgArr'] : [config['msgArr']]) : [];
+    for (let i=0; i<msgArr.length; ++i) {
+        let ratio = (i+1)*1.0 /(1 + msgArr.length);
+        context['fillText'](msgArr[i], 10, ratio*canvas['height']);
+    }
+
+    let texture = new THREE.CanvasTexture(canvas);
+    let spriteMaterial = new THREE.SpriteMaterial({
+        map: texture
+    });
+    let sprite = new THREE.Sprite(spriteMaterial);
+    sprite['name'] = config.hasOwnProperty('name') ? config['name'] : 'unknown';
+    sprite['position']['x'] = config.hasOwnProperty('x') ? config['x'] : 0;
+    sprite['position']['y'] = config.hasOwnProperty('y') ? config['y'] : 0;
+    sprite['position']['z'] = config.hasOwnProperty('z') ? config['z'] : 0;
+    sprite['scale']['set'](40, 40, 1.0);
+    D3DOBJ.addObject(sprite);
+    return sprite;
 };
 D3DLib.prototype.makeTextSprite = function(name, textConfig){
     if (textConfig === undefined || textConfig === null) {
@@ -2039,13 +2225,44 @@ D3DLib.prototype.makeTextSprite = function(name, textConfig){
     sprite['scale']['set'](5 * fontsize, 2.5 * fontsize, 1.0);
     D3DOBJ['addObject'](sprite)
 };
+//config
+//width
+//height
+//background
+//font
+//textColor
+//msgArr
+//x-y-z
+//parent
+//name
 D3DLib.prototype.makeTextSpriteEx = function(config) {
     // 创建canvas
     let canvas = document['createElement']('canvas');
     canvas['width'] = config.hasOwnProperty('width') ? config['width'] : 128;
     canvas['height'] = config.hasOwnProperty('height') ? config['height'] : canvas['width'] / 2;
+    D3DOBJ.drawOnCanvas(canvas, config);
+    let texture = new THREE.Texture(canvas);
+    texture.needsUpdate = true;
+    let spriteMaterial = new THREE.SpriteMaterial({
+        map: texture
+    });
+    let sprite = new THREE.Sprite(spriteMaterial);
+    sprite['name'] = config.hasOwnProperty('name') ? config['name'] : 'unknown';
+    sprite['position']['x'] = config.hasOwnProperty('x') ? config['x'] : 0;
+    sprite['position']['y'] = config.hasOwnProperty('y') ? config['y'] : 0;
+    sprite['position']['z'] = config.hasOwnProperty('z') ? config['z'] : 0;
+    sprite['scale']['set'](40, 40, 1.0);
+    if (config.hasOwnProperty('parent')) {
+        D3DOBJ.addObject(sprite, config['parent']);
+    } else {
+        D3DOBJ.addObject(sprite);
+    }
+    return sprite;
+};
+D3DLib.prototype.drawOnCanvas = function(canvas, config) {
     // 获取上下文 绘制canvas
     let context = canvas['getContext']('2d');
+    context.clearRect(0, 0, canvas.width, canvas.height);
     // 绘制背景
     context['fillStyle'] = config.hasOwnProperty('background') ? config['background'] : 'rgb(128,128,128)';
     context['fillRect'](0, 0, canvas['width'], canvas['height']);
@@ -2058,20 +2275,6 @@ D3DLib.prototype.makeTextSpriteEx = function(config) {
         let ratio = (i+1)*1.0 /(1 + msgArr.length);
         context['fillText'](msgArr[i], 10, ratio*canvas['height']);
     }
-
-    let texture = new THREE.Texture(canvas);
-    texture['needsUpdate'] = true;
-    let spriteMaterial = new THREE.SpriteMaterial({
-        map: texture
-    });
-    let sprite = new THREE.Sprite(spriteMaterial);
-    sprite['name'] = config.hasOwnProperty('name') ? config['name'] : 'unknown';
-    sprite['position']['x'] = config.hasOwnProperty('x') ? config['x'] : 0;
-    sprite['position']['y'] = config.hasOwnProperty('y') ? config['y'] : 0;
-    sprite['position']['z'] = config.hasOwnProperty('z') ? config['z'] : 0;
-    sprite['scale']['set'](40, 40, 1.0);
-    D3DOBJ.addObject(sprite);
-    return sprite;
 };
 D3DLib.prototype.addNurbs = function(nurbsConfig) {
 	let degree1 = 2;
@@ -2235,7 +2438,34 @@ D3DLib.prototype.hideCabinet = function(obj) {
         }
     }
 };
-
+//隐藏一排柜子
+D3DLib.prototype.hideRowCabinet = function(obj) {
+    DelBoxHelper();
+    if(obj.isShowCabinet){
+        obj.isShowCabinet=false;
+    } else {
+        obj.isShowCabinet=true;
+    }
+    let row_label_name = obj.name;
+    let label_row = row_label_name.substr(4,1);
+    // 柜子
+    for(let i=0; i<D3DOBJ.cabList.length; ++i){
+        let cab = D3DOBJ.cabList[i];
+        let cabName = cab.name;
+        let cab_row = cabName.substr(4,1);
+        if(cab_row !== label_row) {
+            cab.visible = !obj.isShowCabinet;
+        }
+    }
+    for(let i=0; i<D3DOBJ.cabInfoSpriteList.length; ++i) {
+        let sprite = D3DOBJ.cabInfoSpriteList[i];
+        let cabCode = sprite['userData']['refCode'];
+        let cab_row = cabCode.substr(1,1);
+        if (label_row !== cab_row) {
+            sprite.visible = !obj.isShowCabinet;
+        }
+    }
+};
 //推拉设备
 D3DLib.prototype.pullDevice = function(obj){
     DelBoxHelper();
@@ -2257,9 +2487,9 @@ D3DLib.prototype.openFrontDoor = function(obj){
     } else{
         obj.isOpen=false;
     }
-    obj.rotation.y += sign*1.7;
-    obj.position.x += sign*35;
-    obj.position.z += sign*39;
+    obj.rotation.y += sign*1.9;
+    obj.position.x += sign*32;
+    obj.position.z += sign*45;
 };
 //开后门
 D3DLib.prototype.openBackDoor = function(obj){
@@ -2272,9 +2502,9 @@ D3DLib.prototype.openBackDoor = function(obj){
         obj.isOpen=true;
     }
 
-    obj.rotation.y += sign*1.4;
-    obj.position.x += sign*35;
-    obj.position.z += sign*40;
+    obj.rotation.y += sign*1.3;
+    obj.position.x += sign*32;
+    obj.position.z += sign*43;
 };
 //开左门
 D3DLib.prototype.openLeftDoor = function(obj){
@@ -2306,48 +2536,91 @@ D3DLib.prototype.openRightDoor = function(obj){
     obj.position.x += sign*52;
     obj.position.z -= sign*52;
 };
+let CABLE_INFO_ID=0;
 D3DLib.prototype.showCableInfo = function(obj) {
-    if(obj === null || obj === undefined || !obj.hasOwnProperty('name')) {
-        return;
-    }
-    //cable_1C230010102_1D426010102
-    let cableName = obj['name'];
-    let fmEthCode = cableName.substr(6, 11);
-    let toEthCode = cableName.substr(18);
-
-    let contents = new Map();
-
-    $.ajax({
-        type:'post',
-        url:'/glserver/eth/get_cable_info',
-        dataType:'json',
-        data: {'fmEthCode':fmEthCode, 'toEthCode':toEthCode},
-        success:function(data){
-            // 起始机柜
-            contents['起始机柜'] = fmEthCode.substr(1,2);
-            // 起始设备名
-            contents['起始设备'] = data['fmDeviceName'];
-            // 起始网卡名
-            contents['起始网卡'] = data['fmEthName'];
-            // 对端机柜
-            contents['对端机柜'] = toEthCode.substr(1,2);
-            // 对端设备名
-            contents['对端设备'] = data['toDeviceName'];
-            // 对端网卡名
-            contents['对端网卡'] = data['toEthName'];
-            D3DOBJ.showDiv('cable-info', contents);
-        },
-        error: function(data) {
-            console.log("get cable info from db error");
+    if (!obj['userData']['show_cable_info']){
+        if(obj === null || obj === undefined || !obj.hasOwnProperty('name')) {
+            return;
         }
-    });
+        //cable_1C230010102_1D426010102
+        let cableName = obj['name'];
+        let fmEthCode = cableName.substr(6, 11);
+        let toEthCode = cableName.substr(18);
+
+        let contents = new Map();
+
+        $.ajax({
+            type:'post',
+            url:'/glserver/eth/get_cable_info',
+            dataType:'json',
+            data: {'fmEthCode':fmEthCode, 'toEthCode':toEthCode},
+            success:function(data){
+                // 起始机柜
+                contents['起始机柜'] = fmEthCode.substr(1,2);
+                // 起始设备名
+                contents['起始设备'] = data['fmDeviceName'];
+                // 起始网卡名
+                contents['起始网卡'] = data['fmEthName'];
+                // 对端机柜
+                contents['对端机柜'] = toEthCode.substr(1,2);
+                // 对端设备名
+                contents['对端设备'] = data['toDeviceName'];
+                // 对端网卡名
+                contents['对端网卡'] = data['toEthName'];
+                CABLE_INFO_ID ++ ;
+                D3DOBJ.showDiv('cable-info-'+ obj['name'], contents);
+                obj['userData']['show_cable_info'] = true;
+            },
+            error: function(data) {
+                console.log("get cable info from db error");
+            }
+        });
+    }
+
+};
+let DEV_INFO_ID = 0;
+D3DLib.prototype.showDeviceInfo = function(obj) {
+    if (!obj['userData']['show_dev_info']){
+        if(obj === null || obj === undefined || !obj.hasOwnProperty('name')) {
+            return;
+        }
+        //dev_1C31602
+        //机柜名称
+        //起始U
+        //占用U
+        let devName = obj['name'];
+
+        let devCode = devName.substr(4);
+        let startU = devName.substr(7,2);
+        let usedU = devName.substr(9,2);
+        let contents = new Map();
+
+        $.ajax({
+            type:'post',
+            url:'/glserver/dev/get_device_info',
+            dataType:'json',
+            data: {'code':devCode},
+            success:function(data){
+                contents['设备名称'] = data['devName'];
+                contents['设备型号'] = data['devModel'];
+                contents['CPU信息'] = data['devCpu'];
+                contents['内存信息'] = data['devMem'];
+                contents['硬盘信息'] = data['devDisk'];
+                contents['安装机柜'] = data['devCabName'];
+                contents['位置信息'] = "起始U:" + startU + " 占用U:" +usedU;
+                contents['barcode'] = data['devBarCode'];
+                DEV_INFO_ID ++;
+                D3DOBJ.showDiv('device-info-'+obj['name'], contents);
+                obj['userData']['show_dev_info'] = true;
+            },
+            error: function(data) {
+                console.log("get device info from db error");
+            }
+        });
+    }
 };
 //显示信息框
 D3DLib.prototype.showDiv = function(domId, contents){
-    // let ele = document.createElement('div');
-    // ele['style']['display'] = block;
-    // ele['style']['left'] = D3DOBJ['mousePos']['x'] + 5;
-    // ele['style']['top'] = D3DOBJ['mousePos']['y'] + 5;
     let eleMain = $('<div></div>');
     eleMain.attr('id', domId);
     eleMain.css('left', D3DOBJ['mousePos']['x'] + 5);
@@ -2362,61 +2635,43 @@ D3DLib.prototype.showDiv = function(domId, contents){
         // 内容
         let eleContents = $("<div id='contents'></div>");
         for(let key in contents){
-            let eleContent = $("<div></div>");
-            let spanKey = $("<span class='key'>" + key + "</span>");
-            let spanVal = "<span class='value'>" + contents[key] + "</span>";
-            eleContent.append(spanKey);
-            eleContent.append(spanVal);
+            let eleContent = $("<div class='content'></div>");
+            if (key === 'barcode') {
+                // 二维码进行特殊处理
+                let imgPath = GCONFIG['pic_path'] + 'barcode/' + contents['barcode'];
+                let img = $("<img src='" + imgPath  + "' width='150' height='150'/>");
+                let spanKey = $("<span class='key' style='margin-top: 20px;'>二维码</span>");
+                let spanVal = $("<span class='value' style='padding: 10px;'></span>");
+                spanVal.append(img);
+                eleContent.append(spanKey);
+                eleContent.append(spanVal);
+            } else {
+                let spanKey = $("<span class='key'>" + key + "</span>");
+                let spanVal = "<span class='value'>" + contents[key] + "</span>";
+                eleContent.append(spanKey);
+                eleContent.append(spanVal);
+            }
             eleContents.append(eleContent);
         }
         eleMain.append(eleContents);
     $('body').append(eleMain);
-    // let x = (document['documentElement']['clientWidth'] - element['clientWidth']) / 2 + document['documentElement']['scrollLeft'] + 'px';
-    // let y = (document['documentElement']['clientHeight'] - element['clientHeight']) / 2 + document['documentElement']['scrollTop'] - 50 + 'px';
-    // let domObj = $('#' + domId);
-    // domObj['style']['display'] = 'block';
-    // domObj['style']['left'] = D3DOBJ['mousePos']['x'] + 5;
-    // domObj['style']['top'] = D3DOBJ['mousePos']['y'] + 5;
-    //
-    // if (content != null) {
-    //     domObj['empty']();
-    //     <div id="title" onclick="closeDiv('main')">设备信息<div id="img" title="关闭" onclick="closeDiv('main')"></div></div>
-    //     <div id="content">
-    //         <div style="float:center;"><span class="divitem">设备名称:</span><span>前置服务器B</span></div>
-    //         <div style="float:center;"><span class="divitem">设备型号:</span><span>曙光A420r-G</span></div>
-    //         <div style="float:center;"><span class="divitem">CPU主频:</span><span>3.1GHz</span></div>
-    //     </div>
-    //     let titleContainer = $('<div id="title" onclick="closeDiv(\'' + domId + '\')">设备信息</div>');
-    //     domObj['append'](titleContainer);
-    //     titleContainer['append']('<div id="ten" onclick="closeDiv(\'' + domId + '\')"></div>');
-    //     titleContainer['append']('<div id="img" title="\u5173\u95ED" onclick="closeDiv(\'' + domId + '\')" ></div>');
-    //     let contentContainer = $('<div id="content">');
-    //     domObj['append'](contentContainer);
-    //
-    //     $['each'](content.info, function (i, obj) {
-    //         let infos = obj['split']('：');
-    //         if (infos.length === 2) {
-    //             contentContainer['append'](' <div style="float:center;"><span class="divitem">' + infos[0] + ':' + '</span><span>' + infos[1] + '</span></div>');
-    //         }
-    //         if (infos.length === 1) {
-    //             contentContainer['append'](' <div style="float:center;"><span class="divitem">' + infos[0] + '</span></div>');
-    //         }
-    //
-    //     });
-    //     if (content.qrcode != null && typeof(content.qrcode) !== 'undefined') {
-    //         var qrcode = $('<div class="qrcode" style="margin-top:5px;"><img src="' + content.qrcode + '" style=""/></div>');
-    //         contentContainer['append'](qrcode);
-    //     }
-    // }
-    //
-    // element['style']['left'] = x;
-    // element['style']['top'] = y;
-    //
-    // document['body']['style']['overflow'] = 'hidden';
 };
 D3DLib.prototype.closeDiv = function(domId) {
     let element = document['getElementById'](domId);
     element.parentNode.removeChild(element);
+    if (domId.indexOf('device-info-') === 0) {
+        let objName = domId.substr(12);
+        let obj = D3DOBJ.findObject(objName);
+        if (obj !== undefined && obj !== null) {
+            obj['userData']['show_dev_info'] = false;
+        }
+    } else if (domId.indexOf('cable-info-') === 0) {
+        let objName = domId.substr(11);
+        let obj = D3DOBJ.findObject(objName);
+        if (obj !== undefined && obj !== null) {
+            obj['userData']['show_cable_info'] = false;
+        }
+    }
 };
 function DelBoxHelper(){
     if(D3DOBJ['boxHelper'] !== null &&

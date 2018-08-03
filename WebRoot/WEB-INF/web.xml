@@ -62,4 +62,7 @@ version="2.4" > -->
     <error-code>404</error-code>
     <location>/error.jsp</location>
   </error-page>
+  <listener>
+    <listener-class>com.leotech.util.GlobalListener</listener-class>
+  </listener>
 </web-app>

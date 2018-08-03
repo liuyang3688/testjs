@@ -52,6 +52,29 @@ public class DeviceDao {
 		}
 		return devices;
 	}
+	public JSONObject getDeviceInfo(String code) {
+		final JSONObject obj = new JSONObject();
+		try {
+			String sqlFilter = " where d.cabinet=c.id and d.code='" + code + "'";
+			String strSql = "select d.name, d.modelNo, d.cpu, d.memory, d.disk, d.barcode, c.name from device d, cabinet c";
+			strSql += sqlFilter;
+			jdbcTemplate.query(strSql, new RowCallbackHandler(){
+				public void processRow(ResultSet result) throws SQLException {
+					obj.put("devName", result.getString("d.name"));
+					obj.put("devModel", result.getString("d.modelNo"));
+					obj.put("devCpu", result.getString("d.cpu"));
+					obj.put("devMem", result.getString("d.memory"));
+					obj.put("devDisk", result.getString("d.disk"));
+					obj.put("devBarCode", result.getString("d.barcode"));
+					obj.put("devCabName", result.getString("c.name"));
+				}
+			});
 
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return obj;
+	}
 }
 

@@ -40,12 +40,14 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
         #contents{
             border: #85ABE4 1px solid;
             border-top: none;
-            padding: 5px;
+            padding: 2px 5px;
+            font-size: 13px;
             float:left;
         }
         #contents{
             background: url(/glserver/static/pic/sh.jpg) no-repeat;
         }
+
         #img{
             /*background: url(/glserver/static/pic/s.jpg) no-repeat;*/
             float: right;
@@ -61,15 +63,19 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
         #ten{float: left;width: 200px;}
         .none{display: none;}
         .show{display: block;}
+        #contents .content {
+            clear: both;
+            text-align:center;
+        }
         #contents .key{
             width:80px;
-            text-align:right;
+            text-align:center;
             float:left;
             color:#0000ff;
         }
         #contents .value{
-            width:120px;
-            text-align:left;
+            width:200px;
+            text-align:center;
             float:right;
             padding-left:10px;
         }
