@@ -79,6 +79,22 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
             float:right;
             padding-left:10px;
         }
+
+        #help {
+            position: absolute;
+            padding: 20px;
+            top: 60px;
+            right:20px;
+            width:400px;
+            background: #00B2E4;
+            border-radius: 20px;
+            color: white;
+            font-size:14px;
+            opacity: 0.9;
+        }
+        #help p {
+            margin-bottom: 1px;
+        }
     </style>
     <link rel="stylesheet" href="/glserver/static/css/bootstrap.min.css" />
     <link rel="stylesheet" href="/glserver/static/css/bootstrapValidator.min.css" />
@@ -88,6 +104,22 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 </head>
 <body>
 <div id="canvas-frame"></div>
+<div id="help" style="display:none">
+    <button type="button" class="close" aria-label="Close" onclick="javascript:D3DOBJ.help();">
+        <span aria-hidden="true">&times;</span>
+    </button>
+    <h4 class="mb-3">使用帮助</h4>
+    <p><div>1. 如何选择某排机柜</div>选择当前排两侧机柜的行标签，右键单击即可。</p>
+    <p><div>2. 如何选择单个机柜</div>选择当前机柜顶上的列标签，右键单击即可</p>
+    <p><div>3. 如何查看机柜内设备</div>左键双击机柜的前门即可</p>
+    <p><div>4. 如何查看单台设备信息</div>左键单击设备即可</p>
+    <p><div>5. 如何查看网线连接</div>点击菜单-配线管理即可</p>
+    <p><div>6. 如何查看供电情况</div>点击菜单-供电电缆即可</p>
+    <p><div>7. 查看空调风向</div>点击菜单-空调风向，即可查看当前机房的空调风走向</p>
+    <p><div>8. 查看机柜利用率</div>点击菜单-空间利用率，即可查看所有记过使用情况。</p>
+    <p><div>9. 查看动环数据</div>点击菜单-动环数据，即可查看动环设备实时数据刷新情况。</p>
+    <p><div>10. 选择推荐机柜</div>点击菜单-推荐机柜，即可按照对话框提示进行新加设备的机柜选择。</p>
+</div>
 </body>
 <script src="/glserver/static/js/three.js"></script>
 <script src="/glserver/static/js/jquery-3.0.0.min.js"></script>

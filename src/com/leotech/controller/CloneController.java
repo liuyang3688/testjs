@@ -70,6 +70,17 @@ public class CloneController {
 		}
 	}
 
+	@RequestMapping("get_all_power")
+	public void getAllPower(HttpServletRequest request, HttpServletResponse response) {
+		JSONArray powers = new JSONArray();
+		powers = CloneService.getAllPower();
+		try {
+			response.getWriter().print(powers);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
 	@RequestMapping("update_isdirty")
 	public void updateIsDirty(HttpServletRequest request, HttpServletResponse response)
 	{

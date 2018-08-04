@@ -16,6 +16,7 @@ public class CloneService {
     public static JSONArray getAllCab() { return CabDao.instance().getAllCab();}
     public static JSONArray getAllArea() { return AreaDao.instance().getAllArea();}
     public static JSONArray getAllSys() { return SysDao.instance().getAllSys();}
+    public static JSONArray getAllPower() { return PowerDao.instance().getAllPower();}
     public static Boolean updateIsDirty(int uuid){
         Boolean isDirty = false;
         return CloneService.updateIsDirty(uuid, isDirty);

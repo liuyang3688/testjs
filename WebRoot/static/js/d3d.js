@@ -49,13 +49,17 @@ let GCONFIG = {
     u_count: 42,
     roam:false,
     conn:false,
-    cableList:[],
+    connList:[],
     temp:false,
     air:false,
     smoke:false,
     cab_usage:false,
     cab_sel:false,
     dyn_data:false,
+    help: false,
+    power: false,
+    powerList:[],
+    powerMatList:[],
     areaMap: new Map(),
     sysMap: new Map()
 };
@@ -295,6 +299,7 @@ D3DLib.prototype.onDocumentMouseMove = function(event){
             SEL_MESH['name'] !== '' ){
             // 当前物体非网线和机柜
             if (SEL_MESH['name'].indexOf('cable_') !== 0 &&
+                SEL_MESH['name'].indexOf('power_') !== 0 &&
                 SEL_MESH['name'].indexOf('cab_') !== 0) {
                 let bNeedCreate = true;
                 if (D3DOBJ['boxHelper'] !== null &&
@@ -327,6 +332,13 @@ D3DLib.prototype.onDocumentMouseMove = function(event){
                     [LAST_MESH['material']['color'], LAST_MESH['userData']['color']] = [LAST_MESH['userData']['color'],LAST_MESH['material']['color']];
                 }
                 if (SEL_MESH !== null && SEL_MESH.hasOwnProperty('name') && SEL_MESH['name'].indexOf('cable_')===0) {
+                    [SEL_MESH['material']['color'], SEL_MESH['userData']['color']] = [SEL_MESH['userData']['color'],SEL_MESH['material']['color']];
+                }
+
+                if (LAST_MESH !== null && LAST_MESH.hasOwnProperty('name') && LAST_MESH['name'].indexOf('power_')===0) {
+                    [LAST_MESH['material']['color'], LAST_MESH['userData']['color']] = [LAST_MESH['userData']['color'],LAST_MESH['material']['color']];
+                }
+                if (SEL_MESH !== null && SEL_MESH.hasOwnProperty('name') && SEL_MESH['name'].indexOf('power_')===0) {
                     [SEL_MESH['material']['color'], SEL_MESH['userData']['color']] = [SEL_MESH['userData']['color'],SEL_MESH['material']['color']];
                 }
                 D3DOBJ.LAST_MESH = SEL_MESH;
@@ -375,133 +387,138 @@ D3DLib.prototype.roam = function(){
     GCONFIG['roam'] = !GCONFIG['roam']
 };
 D3DLib.prototype.connection = function(){
+    // 关闭电缆供应
+    if (GCONFIG['power']) {
+        D3DOBJ.power();
+    }
     if (!GCONFIG['conn']) {
         $.ajax({
-        url: '/glserver/eth/get_all_eth',
-        dataType: 'json',
-        data: null,
-        success: function (datas) {
-            let fmPt = new THREE.Vector3(0,0,0);
-            let toPt = new THREE.Vector3(0,0,0);
-            for(let i=0; i<datas.length; ++i){
-                let data = datas[i];
-                let fmEthName = data['code'];
-                let toEthName = data['peerCode'];
+            url: '/glserver/eth/get_all_eth',
+            dataType: 'json',
+            data: null,
+            success: function (datas) {
+                GCONFIG['connList'] = [];
+                let fmPt = new THREE.Vector3(0,0,0);
+                let toPt = new THREE.Vector3(0,0,0);
+                for(let i=0; i<datas.length; ++i){
+                    let data = datas[i];
+                    let fmEthName = data['code'];
+                    let toEthName = data['peerCode'];
 
-                if (fmEthName.length !== 11 || toEthName.length !== 11){
-                    console.log('fmEthName: ' + fmEthName + ', toEthName:' + toEthName);
-                    continue;
-                }
-                let connName = null;
-                if(fmEthName < toEthName){
-                    connName = 'cable_' + fmEthName + '_' + toEthName;
-                } else {
-                    connName = 'cable_' + toEthName + '_' + fmEthName;
-                }
-                if(D3DOBJ.hasObject(connName)){
-                    continue;
-                }
+                    if (fmEthName.length !== 11 || toEthName.length !== 11){
+                        console.log('fmEthName: ' + fmEthName + ', toEthName:' + toEthName);
+                        continue;
+                    }
+                    let connName = null;
+                    if(fmEthName < toEthName){
+                        connName = 'cable_' + fmEthName + '_' + toEthName;
+                    } else {
+                        connName = 'cable_' + toEthName + '_' + fmEthName;
+                    }
+                    if(D3DOBJ.hasObject(connName)){
+                        continue;
+                    }
 
-                // 解析源点
-                let fmEthRowCount = data['fmEthRowCount'] || 1;
-                let fmEthColCount = data['fmEthColCount'] || 10;
-                let fmCabRow = fmEthName.substr(1,1);
-                let fmCabId = fmEthName.substr(1,2);
-                let fmDevCode = fmEthName.substr(0,7);
-                let fmStartU = parseInt(fmEthName.substr(3,2));
-                let fmUsedU  = parseInt(fmEthName.substr(5,2));
-                let fmEthRow = parseInt(fmEthName.substr(7,2));;
-                let fmEthCol = parseInt(fmEthName.substr(9,2));;
-                let fmCabName = 'cab_' + fmCabId;
-                let fmCabMesh = D3DOBJ.scene.getObjectByName(fmCabName);
-                if(fmCabMesh === null || fmCabMesh.hasOwnProperty('position')===false){
-                    continue;
-                }
-                let fmDevName = 'dev_' + fmDevCode;
-                let fmDevMesh = D3DOBJ.scene.getObjectByName(fmDevName);
-                if(fmDevMesh === null || fmDevMesh.hasOwnProperty('position')===false){
-                    continue;
-                }
-                // cab位置
-                fmPt.x = fmCabMesh.position.x + fmDevMesh.position.x;
-                fmPt.y = fmCabMesh.position.y + fmDevMesh.position.y;
-                fmPt.z = fmCabMesh.position.z + fmDevMesh.position.z;
-                // x轴移至后门处
-                fmPt.x += GCONFIG['cab_inner_length']/2 - 40;
-                // y轴坐标
-                let devHeight = fmUsedU * GCONFIG['u_height'];
-                fmPt.y -= devHeight / 2.0;
-                fmPt.y += devHeight * (fmEthRowCount+1-fmEthRow) /(fmEthRowCount+1);
-                // z轴坐标
-                let fmColLen =  GCONFIG['cab_inner_width'] * 1.0 / (fmEthColCount+1);
-                let fmZSpan = fmColLen * fmEthCol;
-                fmPt.z +=  fmZSpan - GCONFIG['cab_inner_width'] / 2 ;
+                    // 解析源点
+                    let fmEthRowCount = data['fmEthRowCount'] || 1;
+                    let fmEthColCount = data['fmEthColCount'] || 10;
+                    let fmCabRow = fmEthName.substr(1,1);
+                    let fmCabId = fmEthName.substr(1,2);
+                    let fmDevCode = fmEthName.substr(0,7);
+                    let fmStartU = parseInt(fmEthName.substr(3,2));
+                    let fmUsedU  = parseInt(fmEthName.substr(5,2));
+                    let fmEthRow = parseInt(fmEthName.substr(7,2));;
+                    let fmEthCol = parseInt(fmEthName.substr(9,2));;
+                    let fmCabName = 'cab_' + fmCabId;
+                    let fmCabMesh = D3DOBJ.scene.getObjectByName(fmCabName);
+                    if(fmCabMesh === null || fmCabMesh.hasOwnProperty('position')===false){
+                        continue;
+                    }
+                    let fmDevName = 'dev_' + fmDevCode;
+                    let fmDevMesh = D3DOBJ.scene.getObjectByName(fmDevName);
+                    if(fmDevMesh === null || fmDevMesh.hasOwnProperty('position')===false){
+                        continue;
+                    }
+                    // cab位置
+                    fmPt.x = fmCabMesh.position.x + fmDevMesh.position.x;
+                    fmPt.y = fmCabMesh.position.y + fmDevMesh.position.y;
+                    fmPt.z = fmCabMesh.position.z + fmDevMesh.position.z;
+                    // x轴移至后门处
+                    fmPt.x += GCONFIG['cab_inner_length']/2 - 40;
+                    // y轴坐标
+                    let devHeight = fmUsedU * GCONFIG['u_height'];
+                    fmPt.y -= devHeight / 2.0;
+                    fmPt.y += devHeight * (fmEthRowCount+1-fmEthRow) /(fmEthRowCount+1);
+                    // z轴坐标
+                    let fmColLen =  GCONFIG['cab_inner_width'] * 1.0 / (fmEthColCount+1);
+                    let fmZSpan = fmColLen * fmEthCol;
+                    fmPt.z +=  fmZSpan - GCONFIG['cab_inner_width'] / 2 ;
 
-                // 解析目的点
-                let toEthRowCount = data['toEthRowCount'] || 1;
-                let toEthColCount = data['toEthColCount'] || 10;
-                let toCabRow = toEthName.substr(1,1);
-                let toCabId = toEthName.substr(1,2);
-                let toDevCode = toEthName.substr(0,7);
-                let toStartU = parseInt(toEthName.substr(3,2));
-                let toUsedU  = parseInt(toEthName.substr(5,2));
-                let toEthRow = parseInt(toEthName.substr(7,2));;
-                let toEthCol = parseInt(toEthName.substr(9,2));;
-                let toCabName = 'cab_' + toCabId;
-                let toCabMesh = D3DOBJ.scene.getObjectByName(toCabName);
-                if(toCabMesh === null || toCabMesh.hasOwnProperty('position')===false){
-                    continue;
-                }
-                let toDevName = 'dev_' + toDevCode;
-                let toDevMesh = D3DOBJ.scene.getObjectByName(toDevName);
-                if(toDevMesh === null || toDevMesh.hasOwnProperty('position')===false){
-                    continue;
-                }
-                // cab位置
-                toPt.x = toCabMesh.position.x + toDevMesh.position.x;
-                toPt.y = toCabMesh.position.y + toDevMesh.position.y;
-                toPt.z = toCabMesh.position.z + toDevMesh.position.z;
-                // x轴移至后门处
-                toPt.x += GCONFIG['cab_inner_length']/2 -40;
-                // y轴坐标
-                let toDevHeight = toUsedU * GCONFIG['u_height'];
-                toPt.y -= toDevHeight / 2.0;
-                toPt.y += toDevHeight * (toEthRowCount+1-toEthRow) /(toEthRowCount+1);
-                // z轴坐标
-                let toColLen =  GCONFIG['cab_inner_width'] * 1.0 / (toEthColCount+1);
-                let toZSpan = toColLen * toEthCol;
-                toPt.z += toZSpan - GCONFIG['cab_inner_width'] / 2 ;
+                    // 解析目的点
+                    let toEthRowCount = data['toEthRowCount'] || 1;
+                    let toEthColCount = data['toEthColCount'] || 10;
+                    let toCabRow = toEthName.substr(1,1);
+                    let toCabId = toEthName.substr(1,2);
+                    let toDevCode = toEthName.substr(0,7);
+                    let toStartU = parseInt(toEthName.substr(3,2));
+                    let toUsedU  = parseInt(toEthName.substr(5,2));
+                    let toEthRow = parseInt(toEthName.substr(7,2));;
+                    let toEthCol = parseInt(toEthName.substr(9,2));;
+                    let toCabName = 'cab_' + toCabId;
+                    let toCabMesh = D3DOBJ.scene.getObjectByName(toCabName);
+                    if(toCabMesh === null || toCabMesh.hasOwnProperty('position')===false){
+                        continue;
+                    }
+                    let toDevName = 'dev_' + toDevCode;
+                    let toDevMesh = D3DOBJ.scene.getObjectByName(toDevName);
+                    if(toDevMesh === null || toDevMesh.hasOwnProperty('position')===false){
+                        continue;
+                    }
+                    // cab位置
+                    toPt.x = toCabMesh.position.x + toDevMesh.position.x;
+                    toPt.y = toCabMesh.position.y + toDevMesh.position.y;
+                    toPt.z = toCabMesh.position.z + toDevMesh.position.z;
+                    // x轴移至后门处
+                    toPt.x += GCONFIG['cab_inner_length']/2 -40;
+                    // y轴坐标
+                    let toDevHeight = toUsedU * GCONFIG['u_height'];
+                    toPt.y -= toDevHeight / 2.0;
+                    toPt.y += toDevHeight * (toEthRowCount+1-toEthRow) /(toEthRowCount+1);
+                    // z轴坐标
+                    let toColLen =  GCONFIG['cab_inner_width'] * 1.0 / (toEthColCount+1);
+                    let toZSpan = toColLen * toEthCol;
+                    toPt.z += toZSpan - GCONFIG['cab_inner_width'] / 2 ;
 
-                // 根据fmPt和toPt确定路线点
-                // connType 1：不同行 2：同行不同柜 3：同柜不同设备 4：同一设备
-                let connType = 1;
-                if(fmCabRow !== toCabRow) {
-                    connType = 1;
-                } else if (fmCabId !== toCabId){
-                    connType = 2;
-                } else if (fmStartU !== toStartU) {
-                    connType = 3;
-                } else{
-                    connType = 4;
+                    // 根据fmPt和toPt确定路线点
+                    // connType 1：不同行 2：同行不同柜 3：同柜不同设备 4：同一设备
+                    let connType = 1;
+                    if(fmCabRow !== toCabRow) {
+                        connType = 1;
+                    } else if (fmCabId !== toCabId){
+                        connType = 2;
+                    } else if (fmStartU !== toStartU) {
+                        connType = 3;
+                    } else{
+                        connType = 4;
+                    }
+                    let params = {
+                        'fmZSpan': fmZSpan,
+                        'toZSpan': toZSpan,
+                        'fmEthRow': fmEthRow,
+                        'fmEthCol': fmEthCol,
+                        'toEthRow': toEthRow,
+                        'toEthCol': toEthCol,
+                    }
+                    D3DOBJ.createPath(connName, connType, fmPt, toPt, params);
                 }
-                let params = {
-                    'fmZSpan': fmZSpan,
-                    'toZSpan': toZSpan,
-                    'fmEthRow': fmEthRow,
-                    'fmEthCol': fmEthCol,
-                    'toEthRow': toEthRow,
-                    'toEthCol': toEthCol,
-                }
-                D3DOBJ.createPath(connName, connType, fmPt, toPt, params);
-            }
-        },
-        error: function (data) {
-            console.log("update eth from db  error")
-        },
-    });
+            },
+            error: function (data) {
+                console.log("update eth from db  error")
+            },
+        });
     } else {
-        for (let i=0; i<GCONFIG['cableList'].length; ++i){
-            let pathName = GCONFIG['cableList'][i];
+        for (let i=0; i<GCONFIG['connList'].length; ++i){
+            let pathName = GCONFIG['connList'][i];
             D3DOBJ.delObject(pathName);
         }
         //D3DOBJ.delObject(pathName);
@@ -580,7 +597,7 @@ D3DLib.prototype.createPath = function(pathName,pathType, fmPt, toPt, params) {
     let mesh = D3DOBJ.addTunnel(pathConfig, pathPointArr);
     mesh['userData']['color'] = new THREE.Color(1,1,1);
     if(mesh !== undefined && mesh !== null){
-        GCONFIG['cableList'].push(pathName);
+        GCONFIG['connList'].push(pathName);
     }
 }
 D3DLib.prototype.temp = function(){
@@ -1058,7 +1075,221 @@ D3DLib.prototype.cab_sel_box = function() {
     GCONFIG['cab_sel'] = !GCONFIG['cab_sel'];
 };
 D3DLib.prototype.help = function(){
-    D3DOBJ.showDiv('help', );
+    if (!GCONFIG['help']){
+        $('#help').show();
+    } else {
+        $('#help').hide();
+    }
+    GCONFIG['help'] = !GCONFIG['help'];
+};
+D3DLib.prototype.power = function(){
+    if (GCONFIG['conn']) {
+        D3DOBJ.connection();
+    }
+    if (!GCONFIG['power']){
+        $.ajax({
+            url: '/glserver/clone/get_all_power',
+            dataType: 'json',
+            data: null,
+            success: function (datas) {
+                GCONFIG['powerMatList'] = [];
+                let fmPt = new THREE.Vector3(0,0,0);
+                let toPt = new THREE.Vector3(0,0,0);
+                for(let i=0; i<datas.length; ++i){
+                    let data = datas[i];
+                    let fmPowerName = data['from'];
+                    let toPowerName = data['to'];
+
+                    if (fmPowerName.length !== 11 || toPowerName.length !== 11){
+                        console.log('fmPowerName: ' + fmPowerName + ', toPowerName:' + toPowerName);
+                        continue;
+                    }
+                    let connName = null;
+                    connName = 'power_' + fmPowerName + '_' + toPowerName;
+                    if(D3DOBJ.hasObject(connName)){
+                        continue;
+                    }
+
+                    // 解析源点
+                    let fmPowerRowCount = 2;
+                    let fmPowerColCount = 10;
+                    let fmCabRow = fmPowerName.substr(1,1);
+                    let fmCabId = fmPowerName.substr(1,2);
+                    let fmDevCode = fmPowerName.substr(0,7);
+                    let fmStartU = parseInt(fmPowerName.substr(3,2));
+                    let fmUsedU  = parseInt(fmPowerName.substr(5,2));
+                    let fmPowerRow = parseInt(fmPowerName.substr(7,2));;
+                    let fmPowerCol = parseInt(fmPowerName.substr(9,2));;
+                    let fmCabName = 'cab_' + fmCabId;
+                    let fmCabMesh = D3DOBJ.scene.getObjectByName(fmCabName);
+                    if(fmCabMesh === undefined || fmCabMesh.hasOwnProperty('position')===false){
+                        continue;
+                    }
+                    let fmDevName = 'dev_' + fmDevCode;
+                    let fmDevMesh = D3DOBJ.scene.getObjectByName(fmDevName);
+                    if(fmDevMesh === undefined || fmDevMesh.hasOwnProperty('position')===false){
+                        continue;
+                    }
+                    // cab位置
+                    fmPt.x = fmCabMesh.position.x + fmDevMesh.position.x;
+                    fmPt.y = fmCabMesh.position.y + fmDevMesh.position.y;
+                    fmPt.z = fmCabMesh.position.z + fmDevMesh.position.z;
+                    // x轴移至后门处
+                    fmPt.x += GCONFIG['cab_inner_length']/2 - 40;
+                    // y轴坐标
+                    let devHeight = fmUsedU * GCONFIG['u_height'];
+                    fmPt.y -= devHeight / 2.0;
+                    fmPt.y += devHeight * (fmPowerRowCount+1-fmPowerRow) /(fmPowerRowCount+1);
+                    // z轴坐标
+                    let fmColLen =  GCONFIG['cab_inner_width'] * 1.0 / (fmPowerColCount+1);
+                    let fmZSpan = fmColLen * fmPowerCol;
+                    fmPt.z +=  GCONFIG['cab_inner_width'] / 2 -fmZSpan ;
+
+                    // 解析目的点
+                    let toPowerRowCount = 2;
+                    let toPowerColCount = 10;
+                    let toCabRow = toPowerName.substr(1,1);
+                    let toCabId = toPowerName.substr(1,2);
+                    let toDevCode = toPowerName.substr(0,7);
+                    let toStartU = parseInt(toPowerName.substr(3,2));
+                    let toUsedU  = parseInt(toPowerName.substr(5,2));
+                    let toPowerRow = parseInt(toPowerName.substr(7,2));;
+                    let toPowerCol = parseInt(toPowerName.substr(9,2));;
+                    let toCabName = 'cab_' + toCabId;
+                    let toCabMesh = D3DOBJ.scene.getObjectByName(toCabName);
+                    if(toCabMesh === undefined || toCabMesh.hasOwnProperty('position')===false){
+                        continue;
+                    }
+                    let toDevName = 'dev_' + toDevCode;
+                    let toDevMesh = D3DOBJ.scene.getObjectByName(toDevName);
+                    if(toDevMesh === undefined || toDevMesh.hasOwnProperty('position')===false){
+                        continue;
+                    }
+                    // cab位置
+                    toPt.x = toCabMesh.position.x + toDevMesh.position.x;
+                    toPt.y = toCabMesh.position.y + toDevMesh.position.y;
+                    toPt.z = toCabMesh.position.z + toDevMesh.position.z;
+                    // x轴移至后门处
+                    toPt.x += GCONFIG['cab_inner_length']/2 -40;
+                    // y轴坐标
+                    let toDevHeight = toUsedU * GCONFIG['u_height'];
+                    toPt.y -= toDevHeight / 2.0;
+                    toPt.y += toDevHeight * (toPowerRowCount+1-toPowerRow) /(toPowerRowCount+1);
+                    // z轴坐标
+                    let toColLen =  GCONFIG['cab_inner_width'] * 1.0 / (toPowerColCount+1);
+                    let toZSpan = toColLen * toPowerCol;
+                    toPt.z += GCONFIG['cab_inner_width'] / 2 -toZSpan;
+
+                    // 根据fmPt和toPt确定路线点
+                    // connType 1：不同行 2：同行不同柜 3：同柜不同设备 4：同一设备
+                    let connType = 1;
+                    if(fmCabRow !== toCabRow) {
+                        connType = 1;
+                    } else if (fmCabId !== toCabId){
+                        connType = 2;
+                    } else if (fmStartU !== toStartU) {
+                        connType = 3;
+                    } else{
+                        connType = 4;
+                    }
+                    let params = {
+                        'fmZSpan': fmZSpan,
+                        'toZSpan': toZSpan,
+                        'fmEthRow': fmPowerRow,
+                        'fmEthCol': fmPowerCol,
+                        'toEthRow': toPowerRow,
+                        'toEthCol': toPowerCol,
+                    }
+                    D3DOBJ.createPower(connName, connType, fmPt, toPt, params);
+                }
+            },
+            error: function (data) {
+                console.log("update power line from db  error")
+            },
+        });
+    } else {
+        for (let i=0; i<GCONFIG['powerList'].length; ++i){
+            let power = GCONFIG['powerList'][i];
+            D3DOBJ.delObject(power);
+        }
+    }
+    GCONFIG['power'] = !GCONFIG['power'];
+};
+D3DLib.prototype.createPower = function(pathName, pathType, fmPt, toPt, params) {
+    let r=Math.floor(Math.random()*256);
+    let g=Math.floor(Math.random()*256);
+    let b=Math.floor(Math.random()*256);
+    let pathConfig = {
+        name: pathName,
+        type: 'beeline',
+        visible: true,
+        color: colorArr[(params['fmEthRow'] + params['fmEthCol']-2)%5],
+        radiu: 0.7,
+        scene: true,
+        imgurl: '/glserver/static/pic/UV_Red.png',
+    };
+    let pathPointArr = [];
+    pathPointArr.push(fmPt.clone());
+
+    let fmRowSpan = (params['fmEthRow']-1)*2;
+    let fmColSpan = params['fmEthCol'];
+    let toRowSpan = (params['toEthRow']-1)*2;
+    let toColSpan = params['toEthCol'];
+    //x外推
+    fmPt.x = fmPt.x + 60 + fmColSpan;
+    params['fmZSpan'] -= fmRowSpan;
+    pathPointArr.push(fmPt.clone());
+    switch(pathType){
+        case 1://不同行
+            fmPt.z += params['fmZSpan'];
+            pathPointArr.push(fmPt.clone());
+            fmPt.y = GCONFIG['cab_outer_height'] + fmRowSpan;
+            pathPointArr.push(fmPt.clone());
+            fmPt.z = 220 - fmColSpan;
+            pathPointArr.push(fmPt.clone());
+            fmPt.x = toPt.x + 60 - toColSpan;
+            pathPointArr.push(fmPt.clone());
+            fmPt.z = toPt.z + params['toZSpan'] + toRowSpan;
+            pathPointArr.push(fmPt.clone());
+            fmPt.y = toPt.y;
+            pathPointArr.push(fmPt.clone());
+            fmPt.z = toPt.z;
+            pathPointArr.push(fmPt.clone());
+            break;
+        case 2://同行不同柜
+            fmPt.z += params['fmZSpan'];
+            pathPointArr.push(fmPt.clone());
+            fmPt.y = GCONFIG['cab_outer_height'] + fmRowSpan;
+            pathPointArr.push(fmPt.clone());
+            fmPt.z = toPt.z + params['toZSpan'] + toRowSpan;
+            pathPointArr.push(fmPt.clone());
+            fmPt.y = toPt.y;
+            pathPointArr.push(fmPt.clone());
+            fmPt.z = toPt.z;
+            pathPointArr.push(fmPt.clone());
+            break;
+        case 3://同柜不同设备
+            fmPt.z += params['fmZSpan'];
+            pathPointArr.push(fmPt.clone());
+            fmPt.y = toPt.y;
+            pathPointArr.push(fmPt.clone());
+            fmPt.z = toPt.z;
+            pathPointArr.push(fmPt.clone());
+            break;
+        case 4://相同设备
+            fmPt.y = toPt.y;
+            pathPointArr.push(fmPt.clone());
+            fmPt.z = toPt.z;
+            pathPointArr.push(fmPt.clone());
+
+            break;
+    }
+    pathPointArr.push(toPt);
+    let mesh = D3DOBJ.addTunnel(pathConfig, pathPointArr);
+    mesh['userData']['color'] = new THREE.Color(1,1,1);
+    if(mesh !== undefined && mesh !== null){
+        GCONFIG['powerList'].push(pathName);
+    }
 };
 let dyn_data_int = null;
 //width
@@ -1247,14 +1478,10 @@ D3DLib.prototype.onUpdateScene = function() {
 	if(D3DOBJ.controls.autoRotate === true){
 		D3DOBJ.controls.update();
 	}
-//    if (_dg3dObj['vcmaterial']['length']>0 ) {
-//        for(let i=0;i<_dg3dObj['vcmaterial'].length;i++){
-//            _dg3dObj['vcmaterial'][i]['map']['offset']['x'] -= 0.001;
-//            step = _dg3dObj['vcmaterial'][i]['map']['offset']['x']
-//        }
-//
-//    }
-//
+    for(let i=0; i<GCONFIG['powerMatList'].length; i++){
+           let mat = GCONFIG['powerMatList'][i];
+           mat['map']['offset']['x'] -= 0.005;
+    }
     if (D3DOBJ['nurbsmaterial'] != null && typeof(D3DOBJ['nurbsmaterial']) !== 'undefined') {
         D3DOBJ['nurbsmaterial']['map']['offset']['y'] -= 0.1;
     }
@@ -2132,6 +2359,9 @@ D3DLib.prototype.addTunnel = function (config, points) {
             map: textureLoader,
             side: THREE['DoubleSide']
         });
+        if (config.hasOwnProperty('name') && config['name'].indexOf('power_')===0) {
+            GCONFIG['powerMatList'].push(material);
+        }
     } else {
         let color = config['color'] || 'green';
         material = new THREE.MeshBasicMaterial({color:color});
@@ -2408,15 +2638,23 @@ D3DLib.prototype.initParticle = function(config, obj, delay, scale){
 };
 ////////////////////////////////////////////////////////Event
 //隐藏网线
-D3DLib.prototype.hidePath = function(obj) {
+D3DLib.prototype.hideCable = function(obj) {
     DelBoxHelper();
-    for(let i=0; i<GCONFIG['cableList'].length; ++i) {
-        if(GCONFIG['cableList'][i] !== obj['name'] ){
-            D3DOBJ.hideObject(GCONFIG['cableList'][i]);
+    for(let i=0; i<GCONFIG['connList'].length; ++i) {
+        if(GCONFIG['connList'][i] !== obj['name'] ){
+            D3DOBJ.hideObject(GCONFIG['connList'][i]);
         }
     }
 };
-
+//隐藏电线
+D3DLib.prototype.hidePower = function(obj) {
+    DelBoxHelper();
+    for(let i=0; i<GCONFIG['powerList'].length; ++i) {
+        if(GCONFIG['powerList'][i] !== obj['name'] ){
+            D3DOBJ.hideObject(GCONFIG['powerList'][i]);
+        }
+    }
+};
 //隐藏柜子
 D3DLib.prototype.hideCabinet = function(obj) {
     DelBoxHelper();
@@ -2619,6 +2857,29 @@ D3DLib.prototype.showDeviceInfo = function(obj) {
         });
     }
 };
+let POWER_INFO_ID=0;
+D3DLib.prototype.showPowerInfo = function(obj) {
+    if (!obj['userData']['show_power_info']){
+        if(obj === null || obj === undefined || !obj.hasOwnProperty('name')) {
+            return;
+        }
+        //power_1C230010102_1D426010102
+        let powerName = obj['name'];
+        let fmPowerName = powerName.substr(6, 11);
+        let toPowerName = powerName.substr(18);
+
+        let contents = new Map();
+        // 起始机柜
+        contents['电缆名称'] = powerName;
+        // 起始设备名
+        contents['供电A端'] = fmPowerName;
+        // 起始网卡名
+        contents['供电B端'] = toPowerName;
+        POWER_INFO_ID ++ ;
+        D3DOBJ.showDiv('power-info-'+ obj['name'], contents);
+        obj['userData']['show_power_info'] = true;
+    }
+};
 //显示信息框
 D3DLib.prototype.showDiv = function(domId, contents){
     let eleMain = $('<div></div>');
@@ -2670,6 +2931,12 @@ D3DLib.prototype.closeDiv = function(domId) {
         let obj = D3DOBJ.findObject(objName);
         if (obj !== undefined && obj !== null) {
             obj['userData']['show_cable_info'] = false;
+        }
+    } else if (domId.indexOf('power-info-') === 0) {
+        let objName = domId.substr(11);
+        let obj = D3DOBJ.findObject(objName);
+        if (obj !== undefined && obj !== null) {
+            obj['userData']['show_power_info'] = false;
         }
     }
 };
