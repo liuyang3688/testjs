@@ -1,5 +1,5 @@
 let D3DOBJ = null;
-var colorArr = [ 'red', 'green', 'blue', 'yellow', 'pruple' ];
+var colorArr = [ 'red', 'green', 'blue', 'yellow', 'purple' ];
 let BJLX_AIR = 1,
     BJLX_FIRE = 2,
     BJLX_SERVER = 3,
@@ -427,8 +427,8 @@ D3DLib.prototype.connection = function(){
                     let fmDevCode = fmEthName.substr(0,7);
                     let fmStartU = parseInt(fmEthName.substr(3,2));
                     let fmUsedU  = parseInt(fmEthName.substr(5,2));
-                    let fmEthRow = parseInt(fmEthName.substr(7,2));;
-                    let fmEthCol = parseInt(fmEthName.substr(9,2));;
+                    let fmEthRow = parseInt(fmEthName.substr(7,2));
+                    let fmEthCol = parseInt(fmEthName.substr(9,2));
                     let fmCabName = 'cab_' + fmCabId;
                     let fmCabMesh = D3DOBJ.scene.getObjectByName(fmCabName);
                     if(fmCabMesh === null || fmCabMesh.hasOwnProperty('position')===false){
@@ -546,17 +546,22 @@ D3DLib.prototype.createPath = function(pathName,pathType, fmPt, toPt, params) {
     let toRowSpan = (params['toEthRow']-1)*2;
     let toColSpan = params['toEthCol'];
     fmPt.x = fmPt.x + 60 + fmColSpan;
-    params['fmZSpan'] -= fmRowSpan;
+    console.log('pathname:'+pathName + 'fmPt.x' + fmPt.x);
     pathPointArr.push(fmPt.clone());
+    params['fmZSpan'] -= fmRowSpan;
     switch(pathType){
         case 1://不同行
+            //移至当前机柜右侧边
             fmPt.z -= params['fmZSpan'];
             pathPointArr.push(fmPt.clone());
+            //移至当前机柜上侧边
             fmPt.y = GCONFIG['cab_outer_height'] + fmRowSpan;
             pathPointArr.push(fmPt.clone());
+            //移至行机柜侧边
             fmPt.z = GCONFIG['side_cab'] + fmColSpan;
             pathPointArr.push(fmPt.clone());
-            fmPt.x = toPt.x + 60 - toColSpan;
+            //移至目的行机柜
+            fmPt.x = toPt.x + 60 + toColSpan;
             pathPointArr.push(fmPt.clone());
             fmPt.z = toPt.z - params['toZSpan'] + toRowSpan;
             pathPointArr.push(fmPt.clone());
@@ -1100,26 +1105,35 @@ D3DLib.prototype.power = function(){
                     let fmPowerName = data['from'];
                     let toPowerName = data['to'];
 
-                    if (fmPowerName.length !== 11 || toPowerName.length !== 11){
+                    if ((fmPowerName.length !== 11 && fmPowerName.length !== 12) ||
+                        (toPowerName.length !== 11 && toPowerName.length !== 12)){
                         console.log('fmPowerName: ' + fmPowerName + ', toPowerName:' + toPowerName);
                         continue;
                     }
                     let connName = null;
-                    connName = 'power_' + fmPowerName + '_' + toPowerName;
+                    //connName = 'power_' + fmPowerName + '_' + toPowerName;
+                    connName = 'power_' + data['name'];
                     if(D3DOBJ.hasObject(connName)){
                         continue;
                     }
-
                     // 解析源点
-                    let fmPowerRowCount = 2;
-                    let fmPowerColCount = 10;
+                    let fmPowerRowCount = data['fmRowCount'] || 1;
+                    let fmPowerColCount = data['fmColCount'] || 10;
                     let fmCabRow = fmPowerName.substr(1,1);
                     let fmCabId = fmPowerName.substr(1,2);
                     let fmDevCode = fmPowerName.substr(0,7);
                     let fmStartU = parseInt(fmPowerName.substr(3,2));
                     let fmUsedU  = parseInt(fmPowerName.substr(5,2));
-                    let fmPowerRow = parseInt(fmPowerName.substr(7,2));;
-                    let fmPowerCol = parseInt(fmPowerName.substr(9,2));;
+                    let fmPowerRow = parseInt(fmPowerName.substr(7,2));
+                    let fmPowerCol = parseInt(fmPowerName.substr(9,2));
+                    let fmOri = 1;
+                    if ( fmPowerName.length === 12 ) {
+                        let ori = fmPowerName.substr(11,1);
+                        if (ori === 'F'){
+                            fmOri = -1;
+                        }
+                    }
+
                     let fmCabName = 'cab_' + fmCabId;
                     let fmCabMesh = D3DOBJ.scene.getObjectByName(fmCabName);
                     if(fmCabMesh === undefined || fmCabMesh.hasOwnProperty('position')===false){
@@ -1130,7 +1144,7 @@ D3DLib.prototype.power = function(){
                     if(fmDevMesh === undefined || fmDevMesh.hasOwnProperty('position')===false){
                         continue;
                     }
-                    // cab位置
+                    // dev位置
                     fmPt.x = fmCabMesh.position.x + fmDevMesh.position.x;
                     fmPt.y = fmCabMesh.position.y + fmDevMesh.position.y;
                     fmPt.z = fmCabMesh.position.z + fmDevMesh.position.z;
@@ -1138,23 +1152,37 @@ D3DLib.prototype.power = function(){
                     fmPt.x += GCONFIG['cab_inner_length']/2 - 40;
                     // y轴坐标
                     let devHeight = fmUsedU * GCONFIG['u_height'];
+                    // y轴置于设备下边
                     fmPt.y -= devHeight / 2.0;
                     fmPt.y += devHeight * (fmPowerRowCount+1-fmPowerRow) /(fmPowerRowCount+1);
-                    // z轴坐标
-                    let fmColLen =  GCONFIG['cab_inner_width'] * 1.0 / (fmPowerColCount+1);
-                    let fmZSpan = fmColLen * fmPowerCol;
-                    fmPt.z +=  GCONFIG['cab_inner_width'] / 2 -fmZSpan ;
+                    // z轴坐标 左加 右减
+                    // 列宽
+                    let fmPerColLen =  GCONFIG['cab_inner_width'] * 1.0 / (fmPowerColCount+1);
+                    // 列宽*列数
+                    let fmZSpan = fmPerColLen * fmPowerCol;
+                    // Z轴归位机柜左边
+                    fmPt.z +=  GCONFIG['cab_inner_width'] / 2;
+                    // Z轴移到列位置
+                    fmPt.z -= fmZSpan ;
 
                     // 解析目的点
-                    let toPowerRowCount = 2;
-                    let toPowerColCount = 10;
+                    let toPowerRowCount = data['toRowCount'] || 2;
+                    let toPowerColCount = data['toColCount'] || 10;
                     let toCabRow = toPowerName.substr(1,1);
                     let toCabId = toPowerName.substr(1,2);
                     let toDevCode = toPowerName.substr(0,7);
                     let toStartU = parseInt(toPowerName.substr(3,2));
                     let toUsedU  = parseInt(toPowerName.substr(5,2));
-                    let toPowerRow = parseInt(toPowerName.substr(7,2));;
-                    let toPowerCol = parseInt(toPowerName.substr(9,2));;
+                    let toPowerRow = parseInt(toPowerName.substr(7,2));
+                    let toPowerCol = parseInt(toPowerName.substr(9,2));
+                    let toOri = 1;
+                    if ( toPowerName.length === 12 ) {
+                        let ori = toPowerName.substr(11,1);
+                        if (ori === 'F') {
+                            toOri = -1;
+                        }
+                    }
+
                     let toCabName = 'cab_' + toCabId;
                     let toCabMesh = D3DOBJ.scene.getObjectByName(toCabName);
                     if(toCabMesh === undefined || toCabMesh.hasOwnProperty('position')===false){
@@ -1176,8 +1204,8 @@ D3DLib.prototype.power = function(){
                     toPt.y -= toDevHeight / 2.0;
                     toPt.y += toDevHeight * (toPowerRowCount+1-toPowerRow) /(toPowerRowCount+1);
                     // z轴坐标
-                    let toColLen =  GCONFIG['cab_inner_width'] * 1.0 / (toPowerColCount+1);
-                    let toZSpan = toColLen * toPowerCol;
+                    let toPerColLen =  GCONFIG['cab_inner_width'] * 1.0 / (toPowerColCount+1);
+                    let toZSpan = toPerColLen * toPowerCol;
                     toPt.z += GCONFIG['cab_inner_width'] / 2 -toZSpan;
 
                     // 根据fmPt和toPt确定路线点
@@ -1192,13 +1220,27 @@ D3DLib.prototype.power = function(){
                     } else{
                         connType = 4;
                     }
+                    let fmCabNum = 1;
+                    switch (fmCabRow) {
+                        case 'A': fmCabNum = 1; break;
+                        case 'B': fmCabNum = 2; break;
+                        case 'C': fmCabNum = 3; break;
+                        case 'D': fmCabNum = 4; break;
+                        case 'E': fmCabNum = 5; break;
+                        case 'F': fmCabNum = 6; break;
+                    }
+
                     let params = {
                         'fmZSpan': fmZSpan,
                         'toZSpan': toZSpan,
-                        'fmEthRow': fmPowerRow,
-                        'fmEthCol': fmPowerCol,
-                        'toEthRow': toPowerRow,
-                        'toEthCol': toPowerCol,
+                        'fmPowerRow': fmPowerRow,
+                        'fmPowerCol': fmPowerCol,
+                        'toPowerRow': toPowerRow,
+                        'toPowerCol': toPowerCol,
+                        'fmOri': fmOri,
+                        'toOri': toOri,
+                        'radius': data['radius'],
+                        'fmCabNum': fmCabNum
                     }
                     D3DOBJ.createPower(connName, connType, fmPt, toPt, params);
                 }
@@ -1216,52 +1258,63 @@ D3DLib.prototype.power = function(){
     GCONFIG['power'] = !GCONFIG['power'];
 };
 D3DLib.prototype.createPower = function(pathName, pathType, fmPt, toPt, params) {
-    let r=Math.floor(Math.random()*256);
-    let g=Math.floor(Math.random()*256);
-    let b=Math.floor(Math.random()*256);
+    // let r=Math.floor(Math.random()*256);
+    // let g=Math.floor(Math.random()*256);
+    // let b=Math.floor(Math.random()*256);
+    let imgurl = '/glserver/static/pic/UV_Red.png';
+    if (pathName.indexOf('F9') >= 0 ) {
+        imgurl = '/glserver/static/pic/UV_Green.png';
+    }
     let pathConfig = {
         name: pathName,
         type: 'beeline',
         visible: true,
-        color: colorArr[(params['fmEthRow'] + params['fmEthCol']-2)%5],
-        radiu: 0.7,
+        //color: colorArr[(params['fmEthRow'] + params['fmEthCol']-2)%5],
+        radiu: params['radius'],
         scene: true,
-        imgurl: '/glserver/static/pic/UV_Red.png',
+        imgurl: imgurl,
     };
     let pathPointArr = [];
     pathPointArr.push(fmPt.clone());
 
-    let fmRowSpan = (params['fmEthRow']-1)*2;
-    let fmColSpan = params['fmEthCol'];
-    let toRowSpan = (params['toEthRow']-1)*2;
-    let toColSpan = params['toEthCol'];
+    //let fmRowSpan = (params['fmEthRow']-1)*2;
+    let fmColSpan = params['fmPowerCol']*2;
+    //let toRowSpan = (params['toEthRow']-1)*2;
+    let toColSpan = params['toPowerCol']*2;
     //x外推
-    fmPt.x = fmPt.x + 60 + fmColSpan;
-    params['fmZSpan'] -= fmRowSpan;
+    fmPt.x = fmPt.x + params['fmOri']*70 + fmColSpan;
     pathPointArr.push(fmPt.clone());
+    //params['fmZSpan'] -= fmRowSpan;
     switch(pathType){
         case 1://不同行
+            // 移至机柜边
             fmPt.z += params['fmZSpan'];
             pathPointArr.push(fmPt.clone());
-            fmPt.y = GCONFIG['cab_outer_height'] + fmRowSpan;
+            // 升高
+            fmPt.y = GCONFIG['cab_outer_height'] + 2*params['fmCabNum'];
             pathPointArr.push(fmPt.clone());
-            fmPt.z = 220 - fmColSpan;
+            // 移至行柜边
+            fmPt.z = 210 + fmColSpan;
             pathPointArr.push(fmPt.clone());
-            fmPt.x = toPt.x + 60 - toColSpan;
+            // 移至目的行柜
+            fmPt.x = toPt.x + params['toOri']*(toColSpan+50);
             pathPointArr.push(fmPt.clone());
-            fmPt.z = toPt.z + params['toZSpan'] + toRowSpan;
+            // 移至机柜
+            fmPt.z = toPt.z + params['toZSpan'] ;
             pathPointArr.push(fmPt.clone());
+            // 降高
             fmPt.y = toPt.y;
             pathPointArr.push(fmPt.clone());
+            // 移到对应列
             fmPt.z = toPt.z;
             pathPointArr.push(fmPt.clone());
             break;
         case 2://同行不同柜
             fmPt.z += params['fmZSpan'];
             pathPointArr.push(fmPt.clone());
-            fmPt.y = GCONFIG['cab_outer_height'] + fmRowSpan;
+            fmPt.y = GCONFIG['cab_outer_height'];
             pathPointArr.push(fmPt.clone());
-            fmPt.z = toPt.z + params['toZSpan'] + toRowSpan;
+            fmPt.z = toPt.z + params['toZSpan'];
             pathPointArr.push(fmPt.clone());
             fmPt.y = toPt.y;
             pathPointArr.push(fmPt.clone());
@@ -1609,26 +1662,26 @@ D3DLib.prototype.parseDeviceData = function(datas){
         let data = datas[i];
 
         // 首先在scene中查看
-        let devName = data['code'];
-        if (devName==='' || devName.length !== 7){
-            console.log('device name is not qualified. devName:'+devName);
+        let devCode = data['code'];
+        if (devCode==='' || devCode.length !== 7){
+            console.log('device name is not qualified. devName:'+devCode);
             continue;
         }
-        let device = D3DOBJ.scene.getObjectByName(devName);
+        let device = D3DOBJ.scene.getObjectByName(devCode);
         if( device !== undefined){
             device.parent.remove(device);
         }
 
         // 根据Code解析出机柜，起始U
         // 根据template确定clone对象
-        let staId = devName.substr(0,1);
-        let cabId = devName.substr(1,2);
-        let startU = parseInt(devName.substr(3,2));
-        let useU = parseInt(devName.substr(5));
-		data['name'] = 'dev_' + devName;
+        let staId = devCode.substr(0,1);
+        let cabId = devCode.substr(1,2);
+        let startU = parseInt(devCode.substr(3,2));
+        let useU = parseInt(devCode.substr(5));
+		data['name'] = 'dev_' + devCode;
         data['parent'] = 'cab_' + cabId;
         data['x'] = 0;
-        data['y'] = GCONFIG['u_height']*startU - GCONFIG['cab_inner_height']/2 - 2;
+        data['y'] = GCONFIG['u_height']*(startU-1 + (useU*1.0/2)) - GCONFIG['cab_inner_height']/2;
         data['z'] = 0;
         data['rot_y'] = 180;
 
@@ -1636,6 +1689,10 @@ D3DLib.prototype.parseDeviceData = function(datas){
         D3DOBJ.addObject(mesh, data['parent']);
 
         // 生成设备的标签信息
+        let devName = data['devName'];
+        if(devName.indexOf('插排') > 0 || devName.indexOf('UPS')) {
+            continue;
+        }
         let devData = {};
         devData['width'] = 300;
         devData['height'] = 200;
@@ -1852,9 +1909,9 @@ D3DLib.prototype.cloneObj = function(cloneData){
             child['name'] = child['name'] + '_' + cloneData['name'];
         });
     }
-    cloneObj['position']['x'] = cloneData['x'] || 0;
-    cloneObj['position']['y'] = cloneData['y'] || 0;
-    cloneObj['position']['z'] = cloneData['z'] || 0;
+    cloneObj['position']['x'] += cloneData['x'] || 0;
+    cloneObj['position']['y'] += cloneData['y'] || 0;
+    cloneObj['position']['z'] += cloneData['z'] || 0;
     cloneObj['scale']['x'] = cloneData['scl_x'] || 1;
     cloneObj['scale']['y'] = cloneData['scl_y'] || 1;
     cloneObj['scale']['z'] = cloneData['scl_z'] || 1;
@@ -1887,8 +1944,10 @@ D3DLib.prototype.parseTplData = function(data) {
 			break;
 		case 'cabinet':
 			tpl = D3DOBJ.createCabinet(tplData);
+			break;
+		case 'pstrip':
+		    tpl = D3DOBJ.createBox(tplData);
 		    break;
-
 		}
 		if(tplData['type'] !== 'hole'){
 			if(exist(tplData['parent']) && tplData['parent'] !== ''){
@@ -2336,6 +2395,17 @@ D3DLib.prototype.addTunnel = function (config, points) {
         CustomCurve['prototype'] = Object['create'](THREE['Curve']['prototype']);
         CustomCurve['prototype']['constructor'] = CustomCurve;
         CustomCurve['prototype']['getPoint'] = function (pointIndex) {
+            // let nPoint = pointsArr['length'] - 1;
+            // let per = 1 / nPoint;
+            // let vindex = pointIndex*1.0 / per;
+            // if (1 === pointIndex) {
+            //     return pointsArr[vindex]['clone']()
+            // };
+            // let nVertor3 = new THREE.Vector3();
+            // nVertor3['subVectors'](pointsArr[vindex + 1], pointsArr[vindex]);
+            // nVertor3['multiplyScalar']((pointIndex - (per * vindex)) * nPoint);
+            // nVertor3['add'](pointsArr[vindex]);
+            // return nVertor3
             let nPoint = pointsArr['length'] - 1;
             let per = 1 / nPoint;
             let vindex = parseInt( pointIndex / per);
@@ -2366,8 +2436,7 @@ D3DLib.prototype.addTunnel = function (config, points) {
         let color = config['color'] || 'green';
         material = new THREE.MeshBasicMaterial({color:color});
     }
-//    _dg3dObj['vcmaterial']['push'](material);
-    let geometry = new THREE.TubeGeometry(roomCurve, 750, config['radiu'], 8, false);
+    let geometry = new THREE.TubeGeometry(roomCurve, 128, config['radiu'], 4, false);
     let mesh = new THREE.Mesh(geometry, material);
     mesh['position']['set'](0, 0, 0);
     mesh['name'] = config['name'];

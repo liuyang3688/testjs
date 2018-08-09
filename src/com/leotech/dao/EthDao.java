@@ -40,7 +40,7 @@ public class EthDao {
                 devEthCount.clear();
             }
             devEthCount.clear();
-            String sqlFilter = " where eth.device = device.id and device.typeid = device_type.uuid";
+            String sqlFilter = " where eth.device = device.code and device.typeid = device_type.uuid and eth.isShow=1 order by eth.code";
             String strSql = "select eth.code, eth.peerId, device_type.ethRowCount, device_type.ethColCount from eth, device, device_type";
             strSql += sqlFilter;
             jdbcTemplate.query(strSql, new RowCallbackHandler(){
@@ -62,19 +62,6 @@ public class EthDao {
         fetchDevEthCount();
         final JSONArray eths = new JSONArray();
         try {
-//            String sqlFilter = " where eth.device = device.id";
-//            String strSql = "select eth.code, eth.peerId, device.ethRowCount, device.ethColCount from eth, device";
-//            strSql += sqlFilter;
-//            jdbcTemplate.query(strSql, new RowCallbackHandler(){
-//                public void processRow(ResultSet result) throws SQLException {
-//                    JSONObject eth = new JSONObject();
-//                    eth.put("code", result.getString("code"));
-//                    eth.put("peerCode", result.getString("peerId"));
-//                    eth.put("fmEthRowCount", result.getString("ethRowCount"));
-//                    eth.put("fmEthColCount", result.getString("ethColCount"));
-//                    eths.add(eth);
-//                }
-//            });
             for (EthInfo info : devEthCount.values()){
                 JSONObject eth = new JSONObject();
                 eth.put("code", info.code);
@@ -97,7 +84,7 @@ public class EthDao {
     public JSONObject getCableInfo(String fmEthCode, String toEthCode) {
         final JSONObject obj = new JSONObject();
         try {
-            String sqlFilter = " where eth.device = device.id and eth.code='" + fmEthCode+"'";
+            String sqlFilter = " where eth.device = device.code and eth.code='" + fmEthCode+"'";
             String strSql = "select eth.name, device.name  from eth,device";
             strSql += sqlFilter;
             jdbcTemplate.query(strSql, new RowCallbackHandler(){
@@ -107,7 +94,7 @@ public class EthDao {
                 }
             });
 
-            sqlFilter = " where eth.device = device.id and eth.code='" + toEthCode +"'";
+            sqlFilter = " where eth.device = device.code and eth.code='" + toEthCode +"'";
             strSql = "select eth.name, device.name  from eth,device";
             strSql += sqlFilter;
             jdbcTemplate.query(strSql, new RowCallbackHandler(){

@@ -55,7 +55,7 @@ public class DeviceDao {
 	public JSONObject getDeviceInfo(String code) {
 		final JSONObject obj = new JSONObject();
 		try {
-			String sqlFilter = " where d.cabinet=c.id and d.code='" + code + "'";
+			String sqlFilter = " where d.cabinet=c.code and d.code='" + code + "'";
 			String strSql = "select d.name, d.modelNo, d.cpu, d.memory, d.disk, d.barcode, c.name from device d, cabinet c";
 			strSql += sqlFilter;
 			jdbcTemplate.query(strSql, new RowCallbackHandler(){
