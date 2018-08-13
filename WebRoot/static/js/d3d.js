@@ -5,9 +5,72 @@ let BJLX_AIR = 1,
     BJLX_SERVER = 3,
     BJLX_UPS = 4;
 var CsMap_AIR = {
-    1:'空调参数1',
-    2:'空调参数2',
-    3:'空调参数3'
+    1:'室内温度(℃)',
+    2:'室内相对湿度(%)',
+    3:'供热热气温度(℃)',
+    4:'冷水温度(℃)',
+    5:'热水温度(℃)',
+    6:'室外度(℃)',
+    7:'冷水斜阀门(%)',
+    8:'热水斜阀门(%)',
+    9:'蒸汽扇速度(%)',
+    10:'自由制冷位置(%)',
+    11:'干冷却器速度(%)',
+    12:'变速器速度(%)',
+    13:'制冷点设置值(℃)',
+    14:'加热点设置值(℃)',
+    15:'除湿器设置值(%)',
+    16:'加湿器设置值(%)',
+    17:'室内温度高温阈值(℃)',
+    18:'室内温度低温阈值(℃)',
+    19:'室内高湿度阈值(%)',
+    20:'室内低湿度阈值(%)',
+    21:'报警管理类型',
+    1001:'蒸发风扇',
+    1002:'压缩机1',
+    1003:'压缩机2',
+    1004:'电子加热器1',
+    1005:'电子加热器2',
+    1006:'除湿器',
+    1007:'热气经过',
+    1008:'加湿器',
+    1009:'紧急模式',
+    1010:'直接自由制冷',
+    1011:'相位顺序错',
+    1012:'烟/火或者水流',
+    1013:'烟火',
+    1014:'水流',
+    1015:'气流丢失',
+    1016:'高压线路一',
+    1017:'高压线路二',
+    1018:'低压线路一',
+    1019:'低压线路二',
+    1020:'加热器过热',
+    1021:'过滤罩脏',
+    1022:'加湿器水位高',
+    1023:'加湿器无水',
+    1024:'加湿器水位低',
+    1025:'EEPROM错误',
+    1026:'水流遗失',
+    1027:'室内温度传感器故障',
+    1028:'室内加湿传感器故障',
+    1029:'供热空气传感器故障',
+    1030:'冷水温度传感器故障',
+    1031:'热水温度传感器故障',
+    1032:'室外温度传感器故障',
+    1033:'LAN连接故障',
+    1034:'室内温度高',
+    1035:'室内温度低',
+    1036:'室内湿度高',
+    1037:'室内湿度低',
+    1038:'水温高',
+    1039:'口令错误',
+    1040:'常规报警',
+    1041:'信号维持',
+    1042:'压差传感器故障',
+    1043:'扩展告警',
+    1044:'单位打开',
+    1045:'报警重置',
 };
 var CsMap_FIRE = {
     1:'消防参数1',
@@ -294,9 +357,21 @@ D3DLib.prototype.onDocumentMouseMove = function(event){
     if (intersectObjects['length'] > 0) {
         D3DOBJ['SELECTED'] = intersectObjects[0]['object'];
         let SEL_MESH = D3DOBJ['SELECTED'];
+        if (! SEL_MESH instanceof THREE.Mesh) {
+            $("#mesh-info").hide();
+        }
         if (SEL_MESH instanceof THREE.Mesh &&
             SEL_MESH.hasOwnProperty('name') &&
             SEL_MESH['name'] !== '' ){
+            {// 处理信息提示
+                if (SEL_MESH !== D3DOBJ.LAST_MESH ) {
+                    D3DOBJ.LAST_MESH = SEL_MESH;
+                    // 取消上次的tabBox
+
+                    // 显示当前的tabBox
+                }
+            }
+
             // 当前物体非网线和机柜
             if (SEL_MESH['name'].indexOf('cable_') !== 0 &&
                 SEL_MESH['name'].indexOf('power_') !== 0 &&
@@ -1371,22 +1446,39 @@ D3DLib.prototype.parseDynData_Air = function(datas, config) {
         config['name'] = config['parent'] +'-dyn_data';
         config['msgArr'] = [];
         let csArr = datas[key];
-        for (let i=0; i<csArr.length; ++i) {
+        let filterArr = [];
+        for(let i=0; i< csArr.length; i++) {
             let bj = csArr[i];
-            config['msgArr'].push(CsMap_AIR[bj['bjcs']] + ':' + bj['val'].toFixed(2));
+            if ( (bj['bjcs'] >=1 && bj['bjcs']<=5) ||
+                (bj['bjcs'] >=1001 && bj['bjcs']<=1005) ) {
+                filterArr.push(bj);
+            }
+        }
+        let newCsArr = filterArr.sort(function(a,b){
+            return (a['bjcs'] - b['bjcs']);
+        });
+        for(let i=0; i< newCsArr.length; i++) {
+            let bj = newCsArr[i];
+            let line = null;
+            if (bj['bjcs'] <= 5) {
+                line = CsMap_AIR[bj['bjcs']] + ':' + bj['val'].toFixed(2);
+            } else if (bj['bjcs'] >=1001) {
+                line = CsMap_AIR[bj['bjcs']] + ':' + bj['val'].toFixed(0);
+            }
+            config['msgArr'].push(line);
         }
         let mapKey = pad(BJLX_AIR, 3) + pad(key, 3);
         if (D3DOBJ.dynDataSpriteMap.has(mapKey)){
             // 当前设备已生成过
             let sprite = D3DOBJ.dynDataSpriteMap.get(mapKey);
             D3DOBJ.rmObject(sprite, D3DOBJ.findObject(sprite['userData']['parent']));
-
-            //let canvas = sprite.material.map.image;
-            //D3DOBJ.drawOnCanvas(canvas, config);
         }
         //else {
             // 当前设备未生成过
-            let sprite = D3DOBJ.makeTextSpriteEx(config);
+        config['font'] = '28px FangSong';
+        config['height'] = 800;
+        config['y'] = 130;
+            let sprite = D3DOBJ.makeTextSpriteEx_Air(config);
             sprite['userData']['parent'] = config['parent'];
             D3DOBJ.dynDataSpriteMap.set(mapKey, sprite);
         //}
@@ -1431,7 +1523,7 @@ D3DLib.prototype.dyn_data = function() {
         config['font'] = '28px FangSong';
         config['background'] = 'orange';
         config['textColor'] = 'blue';
-        config['width'] = 240;
+        config['width'] = 340;
         config['height'] = 280;
         config['x'] = 0;
         config['y'] = 130;
@@ -2585,6 +2677,30 @@ D3DLib.prototype.makeTextSpriteEx = function(config) {
     }
     return sprite;
 };
+D3DLib.prototype.makeTextSpriteEx_Air = function(config) {
+    // 创建canvas
+    let canvas = document['createElement']('canvas');
+    canvas['width'] = config.hasOwnProperty('width') ? config['width'] : 128;
+    canvas['height'] = config.hasOwnProperty('height') ? config['height'] : canvas['width'] / 2;
+    D3DOBJ.drawOnCanvas(canvas, config);
+    let texture = new THREE.Texture(canvas);
+    texture.needsUpdate = true;
+    let spriteMaterial = new THREE.SpriteMaterial({
+        map: texture
+    });
+    let sprite = new THREE.Sprite(spriteMaterial);
+    sprite['name'] = config.hasOwnProperty('name') ? config['name'] : 'unknown';
+    sprite['position']['x'] = config.hasOwnProperty('x') ? config['x'] : 0;
+    sprite['position']['y'] = config.hasOwnProperty('y') ? config['y'] : 0;
+    sprite['position']['z'] = config.hasOwnProperty('z') ? config['z'] : 0;
+    sprite['scale']['set'](40, 60, 1.0);
+    if (config.hasOwnProperty('parent')) {
+        D3DOBJ.addObject(sprite, config['parent']);
+    } else {
+        D3DOBJ.addObject(sprite);
+    }
+    return sprite;
+};
 D3DLib.prototype.drawOnCanvas = function(canvas, config) {
     // 获取上下文 绘制canvas
     let context = canvas['getContext']('2d');
@@ -2598,7 +2714,7 @@ D3DLib.prototype.drawOnCanvas = function(canvas, config) {
     context['fillStyle'] = config.hasOwnProperty('textColor') ? config['textColor'] : 'rgb(255,255,255)';
     let msgArr = config.hasOwnProperty('msgArr') ? (Array.isArray(config['msgArr'])? config['msgArr'] : [config['msgArr']]) : [];
     for (let i=0; i<msgArr.length; ++i) {
-        let ratio = (i+1)*1.0 /(1 + msgArr.length);
+        let ratio = (i+1)*1.0 /(2 + msgArr.length);
         context['fillText'](msgArr[i], 10, ratio*canvas['height']);
     }
 };
