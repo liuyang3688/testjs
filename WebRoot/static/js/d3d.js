@@ -511,6 +511,7 @@ D3DLib.prototype.connection = function(){
                     }
                     D3DOBJ.createPath(connName, connType, fmPt, toPt, params);
                 }
+                console.log('render connection finished!')
             },
             error: function (data) {
                 console.log("update eth from db  error")
@@ -523,7 +524,7 @@ D3DLib.prototype.connection = function(){
         }
         //D3DOBJ.delObject(pathName);
     };
-    GCONFIG['conn'] = !GCONFIG['conn']
+    GCONFIG['conn'] = !GCONFIG['conn'];
 };
 
 D3DLib.prototype.createPath = function(pathName,pathType, fmPt, toPt, params) {
@@ -546,7 +547,6 @@ D3DLib.prototype.createPath = function(pathName,pathType, fmPt, toPt, params) {
     let toRowSpan = (params['toEthRow']-1)*2;
     let toColSpan = params['toEthCol'];
     fmPt.x = fmPt.x + 60 + fmColSpan;
-    console.log('pathname:'+pathName + 'fmPt.x' + fmPt.x);
     pathPointArr.push(fmPt.clone());
     params['fmZSpan'] -= fmRowSpan;
     switch(pathType){
@@ -599,12 +599,12 @@ D3DLib.prototype.createPath = function(pathName,pathType, fmPt, toPt, params) {
             break;
     }
     pathPointArr.push(toPt);
-    let mesh = D3DOBJ.addTunnel(pathConfig, pathPointArr);
+    let mesh = D3DOBJ.addTunnel_Conn(pathConfig, pathPointArr);
     mesh['userData']['color'] = new THREE.Color(1,1,1);
     if(mesh !== undefined && mesh !== null){
         GCONFIG['connList'].push(pathName);
     }
-}
+};
 D3DLib.prototype.temp = function(){
 	let objName = 'temp2001';
     if (!GCONFIG['temp']) {
@@ -1240,7 +1240,10 @@ D3DLib.prototype.power = function(){
                         'fmOri': fmOri,
                         'toOri': toOri,
                         'radius': data['radius'],
-                        'fmCabNum': fmCabNum
+                        'type': data['type'],
+                        'fmCabNum': fmCabNum,
+                        'fmStartU': fmStartU,
+                        'toStartU': toStartU
                     }
                     D3DOBJ.createPower(connName, connType, fmPt, toPt, params);
                 }
@@ -1262,8 +1265,10 @@ D3DLib.prototype.createPower = function(pathName, pathType, fmPt, toPt, params) 
     // let g=Math.floor(Math.random()*256);
     // let b=Math.floor(Math.random()*256);
     let imgurl = '/glserver/static/pic/UV_Red.png';
-    if (pathName.indexOf('F9') >= 0 ) {
-        imgurl = '/glserver/static/pic/UV_Green.png';
+    switch (params['type']) {
+        case 1: imgurl = '/glserver/static/pic/UV_Green.png'; break;
+        case 2: imgurl = '/glserver/static/pic/UV_Red.png'; break;
+        case 3: imgurl = '/glserver/static/pic/UV_Grid_Sm.jpg'; break;
     }
     let pathConfig = {
         name: pathName,
@@ -1283,6 +1288,9 @@ D3DLib.prototype.createPower = function(pathName, pathType, fmPt, toPt, params) 
     let toColSpan = params['toPowerCol']*2;
     //x外推
     fmPt.x = fmPt.x + params['fmOri']*70 + fmColSpan;
+    if (params['type'] === 3) {
+        fmPt.x += params['fmStartU'];
+    }
     pathPointArr.push(fmPt.clone());
     //params['fmZSpan'] -= fmRowSpan;
     switch(pathType){
@@ -1297,10 +1305,13 @@ D3DLib.prototype.createPower = function(pathName, pathType, fmPt, toPt, params) 
             fmPt.z = 210 + fmColSpan;
             pathPointArr.push(fmPt.clone());
             // 移至目的行柜
-            fmPt.x = toPt.x + params['toOri']*(toColSpan+50);
+            if (params['type'] === 2){
+
+            }
+            fmPt.x = toPt.x + params['toOri']*(toColSpan+50 - params['toStartU']*2);
             pathPointArr.push(fmPt.clone());
             // 移至机柜
-            fmPt.z = toPt.z + params['toZSpan'] ;
+            fmPt.z = toPt.z + params['toZSpan'] + params['toStartU']*2;
             pathPointArr.push(fmPt.clone());
             // 降高
             fmPt.y = toPt.y;
@@ -1481,7 +1492,7 @@ D3DLib.prototype.initStats = function(){
     D3DOBJ.statUi.domElement.style.top = '0px';
 
     document.body.appendChild(D3DOBJ.statUi.domElement);
-}
+};
 D3DLib.prototype.initLight = function() {
     let ambientLight = new THREE.AmbientLight(0xcccccc);
     ambientLight['position']['set'](0, 0, 0);
@@ -2373,18 +2384,45 @@ D3DLib.prototype.stopDynamicPath = function (name) {
     D3DOBJ['dynamicPathTimer'] = 0.0;
     D3DOBJ.delObject(name);
 };
-D3DLib.prototype.addTunnel = function (config, points) {
-    let pointsArr = [];
-    let roomCurve = null;
-    if (points != null && points['length'] > 0) {
-        for(let i=0; i<points.length; ++i){
-        	let v3 = new THREE.Vector3(0,0,0);
-        	v3.x = points[i].x;
-        	v3.y = points[i].y;
-        	v3.z = points[i].z;
-        	pointsArr.push(v3);
-        }
+function CustomCurve(scale, pointsArr) {
+    THREE['Curve']['call'](this);
+    this.arcLengthDivisions = 50;
+    this['scale'] = (scale === undefined) ? 1 : scale;
+    this.pointsArr = pointsArr;
+}
+CustomCurve['prototype'] = Object['create'](THREE['Curve']['prototype']);
+CustomCurve['prototype']['constructor'] = CustomCurve;
+CustomCurve['prototype']['getPoint'] = function (pointIndex) {
+    let nPoint = this.pointsArr['length'] - 1;
+    let per = 1 / nPoint;
+    let vindex = parseInt( pointIndex / per);
+    if (1 === pointIndex) {
+        return this.pointsArr[vindex]['clone']()
     };
+    let nVertor3 = new THREE.Vector3();
+    nVertor3['subVectors'](this.pointsArr[vindex + 1], this.pointsArr[vindex]);
+    nVertor3['multiplyScalar']((pointIndex - (per * vindex)) * nPoint);
+    nVertor3['add'](this.pointsArr[vindex]);
+    return nVertor3;
+};
+D3DLib.prototype.addTunnel_Conn = function(config, pointsArr) {
+    let roomCurve = null;
+    roomCurve = new CustomCurve(10, pointsArr);
+    let material = null;
+    let color = config['color'] || 'green';
+    material = new THREE.MeshBasicMaterial({color:color});
+    let geometry = new THREE.TubeGeometry(roomCurve, 64, config['radiu'], 3, false);
+    let mesh = new THREE.Mesh(geometry, material);
+    mesh['position']['set'](0, 0, 0);
+    mesh['name'] = config['name'];
+    mesh['visible'] = config['visible'];
+    if (true === config['scene']) {
+        D3DOBJ.scene.add(mesh);
+    };
+    return mesh
+};
+D3DLib.prototype.addTunnel = function (config, pointsArr) {
+    let roomCurve = null;
     if (config['type'] == null || typeof(config['type']) === 'undefined' || config['type'] === 'curve') {
         roomCurve = new THREE.CatmullRomCurve3(pointsArr)
     } else if (config['type'] === 'beeline') {
@@ -2395,17 +2433,6 @@ D3DLib.prototype.addTunnel = function (config, points) {
         CustomCurve['prototype'] = Object['create'](THREE['Curve']['prototype']);
         CustomCurve['prototype']['constructor'] = CustomCurve;
         CustomCurve['prototype']['getPoint'] = function (pointIndex) {
-            // let nPoint = pointsArr['length'] - 1;
-            // let per = 1 / nPoint;
-            // let vindex = pointIndex*1.0 / per;
-            // if (1 === pointIndex) {
-            //     return pointsArr[vindex]['clone']()
-            // };
-            // let nVertor3 = new THREE.Vector3();
-            // nVertor3['subVectors'](pointsArr[vindex + 1], pointsArr[vindex]);
-            // nVertor3['multiplyScalar']((pointIndex - (per * vindex)) * nPoint);
-            // nVertor3['add'](pointsArr[vindex]);
-            // return nVertor3
             let nPoint = pointsArr['length'] - 1;
             let per = 1 / nPoint;
             let vindex = parseInt( pointIndex / per);
@@ -2436,7 +2463,7 @@ D3DLib.prototype.addTunnel = function (config, points) {
         let color = config['color'] || 'green';
         material = new THREE.MeshBasicMaterial({color:color});
     }
-    let geometry = new THREE.TubeGeometry(roomCurve, 128, config['radiu'], 4, false);
+    let geometry = new THREE.TubeGeometry(roomCurve, 64, config['radiu'], 3, false);
     let mesh = new THREE.Mesh(geometry, material);
     mesh['position']['set'](0, 0, 0);
     mesh['name'] = config['name'];

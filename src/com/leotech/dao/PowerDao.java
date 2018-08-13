@@ -38,7 +38,7 @@ public class PowerDao {
 			powerInfoMap.clear();
 			// From统计
 			String sqlFilter = " where power.fromDevice = device.code and device.typeid = device_type.uuid and power.isShow=1";
-			String strSql = "select power.name, power.from, power.radius, device_type.ethRowCount, device_type.ethColCount from power, device, device_type";
+			String strSql = "select power.name, power.from, power.radius, power.type, device_type.ethRowCount, device_type.ethColCount from power, device, device_type";
 			strSql += sqlFilter;
 			jdbcTemplate.query(strSql, new RowCallbackHandler(){
 				public void processRow(ResultSet result) throws SQLException {
@@ -46,6 +46,7 @@ public class PowerDao {
 					info.name = result.getString("power.name");
 					info.from = result.getString("power.from");
 					info.radius = result.getDouble("power.radius");
+					info.type = result.getInt("power.type");
 					info.fmRowCount = result.getInt("device_type.ethRowCount");
 					info.fmColCount = result.getInt("device_type.ethColCount");
 					powerInfoMap.put(info.name, info);
@@ -87,6 +88,7 @@ public class PowerDao {
 				power.put("from", info.from);
 				power.put("to", info.to);
 				power.put("radius", info.radius);
+				power.put("type", info.type);
 				power.put("fmRowCount", info.fmRowCount);
 				power.put("fmColCount", info.fmColCount);
 				power.put("toRowCount", info.toRowCount);
@@ -107,7 +109,9 @@ public class PowerDao {
 		public int      toRowCount;
 		public int      toColCount;
 		public double   radius;
+		public int      type;
 		public PowerInfo(){
+			this.type=1;
 			this.fmRowCount = 42;
 			this.fmColCount = 20;
 			this.toRowCount = 1;
